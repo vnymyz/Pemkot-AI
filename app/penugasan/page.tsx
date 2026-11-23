@@ -46,8 +46,8 @@ export default async function PenugasanPage({
         title={isVendor ? "Penugasan Saya" : "Penugasan"}
         description={
           isVendor
-            ? "Pekerjaan yang sudah disetujui untuk vendor Bapak/Ibu."
-            : "Vendor yang ditugaskan pada proyek. Usulan baru menunggu keputusan Kepala Dinas."
+            ? "Pekerjaan yang sudah disetujui untuk Bapak/Ibu."
+            : "Vendor yang ditugaskan ke proyek. Usulan baru menunggu keputusan Kepala Dinas."
         }
       />
 

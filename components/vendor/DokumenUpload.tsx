@@ -51,7 +51,7 @@ export function DokumenUpload({ vendorId }: { vendorId: string }) {
         return;
       }
       setMessage({ ok: true, text: result?.catatan ?? "Dokumen tersimpan." });
-      toast.success("Dokumen diunggah dan diperiksa.");
+      toast.success("Dokumen terunggah dan sudah dicek.");
       if (fileRef.current) fileRef.current.value = "";
       router.refresh();
     } catch {

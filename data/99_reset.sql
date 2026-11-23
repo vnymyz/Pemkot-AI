@@ -10,6 +10,7 @@ drop function if exists detail_proyek(uuid, uuid);
 drop function if exists daftar_proyek(uuid, text, text, text, date, date, boolean, int);
 drop function if exists simpan_draft_vendor(uuid, uuid, jsonb);
 drop function if exists ringkasan_dashboard(uuid);
+drop function if exists analitik_dashboard(uuid);
 drop function if exists ajukan_aktivasi_vendor(uuid, uuid);
 drop function if exists kirim_verifikasi_vendor(uuid, uuid);
 drop function if exists putuskan_dokumen_vendor(uuid, uuid, boolean, text);

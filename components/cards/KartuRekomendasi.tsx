@@ -232,7 +232,7 @@ export function KartuUsulanPenugasan({
       }
       setSubmitted(true);
       setConfirmOpen(false);
-      toast.success("Usulan penugasan dibuat. Menunggu persetujuan Kepala Dinas.");
+      toast.success("Usulan dikirim. Menunggu Kepala Dinas.");
     } catch {
       setError("Usulan belum dibuat. Periksa koneksi, lalu coba lagi.");
     } finally {

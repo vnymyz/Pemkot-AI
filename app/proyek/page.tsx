@@ -53,8 +53,8 @@ export default async function ProyekPage({
         title={isVendor ? "Proyek Saya" : "Proyek"}
         description={
           isVendor
-            ? "Proyek yang melibatkan vendor Bapak/Ibu."
-            : `Daftar proyek pengadaan${session.role === "pic_proyek" && session.opdNama ? ` di ${session.opdNama}` : ""}. Buka satu proyek untuk melihat kebutuhan dan vendor yang siap.`
+            ? "Proyek yang dikerjakan vendor Bapak/Ibu."
+            : `Proyek pengadaan${session.role === "pic_proyek" && session.opdNama ? ` di ${session.opdNama}` : ""}. Buka satu untuk melihat kebutuhan dan vendor yang siap.`
         }
       />
 

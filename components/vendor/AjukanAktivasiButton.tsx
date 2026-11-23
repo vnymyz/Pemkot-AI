@@ -28,7 +28,7 @@ export function AjukanAktivasiButton({ id, name }: { id: string; name: string })
         return;
       }
       setOpen(false);
-      toast.success("Usulan aktivasi dibuat. Menunggu persetujuan Kepala Dinas.");
+      toast.success("Usulan aktivasi dikirim. Menunggu Kepala Dinas.");
       router.refresh();
     } catch {
       setError("Usulan aktivasi belum dibuat. Periksa koneksi, lalu coba lagi.");

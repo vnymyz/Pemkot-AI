@@ -1,4 +1,4 @@
-import { ArrowRight, CircleCheck } from "lucide-react";
+import { CircleCheck } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PanduanButton } from "@/components/onboarding/Onboarding";
@@ -7,7 +7,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ROLE_LABELS, type Role } from "@/lib/auth/roles";
 import { getSessionState } from "@/lib/auth/session";
 import { formatTanggal } from "@/lib/format";
-import { ringkasanDashboard, type DashboardData } from "@/lib/services/dashboard";
+import { Analitik } from "@/components/dashboard/Analitik";
+import { analitikDashboard, ringkasanDashboard, type DashboardData } from "@/lib/services/dashboard";
 
 export const metadata: Metadata = { title: "Dashboard | Pemkot-AI" };
 
@@ -39,17 +40,17 @@ function cardsFor(role: Role, d: DashboardData): Card[] {
       {
         key: "usulan",
         count: n(d.usulan_menunggu),
-        title: "Usulan menunggu keputusan",
-        detail: d.usulan_tertua ? `Usulan tertua masuk ${formatTanggal(d.usulan_tertua)}.` : "Semua usulan sudah diputuskan.",
+        title: "usulan menunggu keputusan Bapak/Ibu",
+        detail: d.usulan_tertua ? `Yang paling lama masuk ${formatTanggal(d.usulan_tertua)}.` : "Semua sudah diputuskan.",
         href: "/persetujuan",
-        cta: "Tinjau usulan",
+        cta: "Buka usulan",
         done: "Tidak ada usulan yang menunggu.",
       },
       {
         key: "proyek",
         count: n(d.proyek_tanpa_vendor),
-        title: "Proyek belum punya vendor",
-        detail: "Proyek yang masih mencari vendor.",
+        title: "proyek belum punya vendor",
+        detail: "Masih mencari vendor.",
         href: "/proyek?status=mencari_vendor",
         cta: "Lihat proyek",
         done: "Semua proyek sudah punya vendor.",
@@ -57,8 +58,8 @@ function cardsFor(role: Role, d: DashboardData): Card[] {
       {
         key: "sertifikat",
         count: n(d.sertifikat_hampir_habis),
-        title: "Sertifikat hampir habis",
-        detail: "Sertifikat vendor aktif yang berakhir dalam 60 hari atau sudah lewat.",
+        title: "sertifikat vendor hampir habis",
+        detail: "Berakhir dalam 60 hari atau sudah lewat.",
         href: "/chat",
         cta: "Minta laporan",
         done: "Tidak ada sertifikat yang perlu diperhatikan.",
@@ -71,7 +72,7 @@ function cardsFor(role: Role, d: DashboardData): Card[] {
       {
         key: "verifikasi",
         count: n(d.vendor_verifikasi),
-        title: "Vendor menunggu verifikasi",
+        title: "vendor menunggu verifikasi",
         detail: "Periksa dokumen, lalu ajukan aktivasi ke Kepala Dinas.",
         href: "/vendor?status=verifikasi",
         cta: "Periksa vendor",
@@ -80,7 +81,7 @@ function cardsFor(role: Role, d: DashboardData): Card[] {
       {
         key: "proyek",
         count: n(d.proyek_tanpa_vendor),
-        title: "Proyek belum punya vendor",
+        title: "proyek belum punya vendor",
         detail: "Cari vendor yang siap, lalu ajukan penugasan.",
         href: "/proyek?status=mencari_vendor",
         cta: "Cari vendor",
@@ -89,7 +90,7 @@ function cardsFor(role: Role, d: DashboardData): Card[] {
       {
         key: "usulan",
         count: n(d.usulan_menunggu),
-        title: "Usulan Bapak/Ibu yang menunggu",
+        title: "usulan Bapak/Ibu menunggu keputusan",
         detail: "Menunggu keputusan Kepala Dinas.",
         href: "/penugasan?status=diusulkan",
         cta: "Lihat usulan",
@@ -98,8 +99,8 @@ function cardsFor(role: Role, d: DashboardData): Card[] {
       {
         key: "sertifikat",
         count: n(d.sertifikat_hampir_habis),
-        title: "Sertifikat hampir habis",
-        detail: "Sertifikat vendor aktif yang berakhir dalam 60 hari atau sudah lewat.",
+        title: "sertifikat vendor hampir habis",
+        detail: "Berakhir dalam 60 hari atau sudah lewat.",
         href: "/chat",
         cta: "Buat laporan",
         done: "Tidak ada sertifikat yang perlu diperhatikan.",
@@ -112,7 +113,7 @@ function cardsFor(role: Role, d: DashboardData): Card[] {
       {
         key: "proyek",
         count: n(d.proyek_tanpa_vendor),
-        title: "Proyek dinas Bapak/Ibu tanpa vendor",
+        title: "proyek dinas Bapak/Ibu belum punya vendor",
         detail: "Lihat vendor yang siap, lalu ajukan penugasan.",
         href: "/proyek?status=mencari_vendor",
         cta: "Cari vendor",
@@ -121,7 +122,7 @@ function cardsFor(role: Role, d: DashboardData): Card[] {
       {
         key: "usulan",
         count: n(d.usulan_menunggu),
-        title: "Usulan Bapak/Ibu yang menunggu",
+        title: "usulan Bapak/Ibu menunggu keputusan",
         detail: "Menunggu keputusan Kepala Dinas.",
         href: "/penugasan?status=diusulkan",
         cta: "Lihat usulan",
@@ -134,7 +135,7 @@ function cardsFor(role: Role, d: DashboardData): Card[] {
     {
       key: "dokumen",
       count: Math.max(n(d.dokumen_wajib) - n(d.dokumen_lengkap), 0),
-      title: "Dokumen wajib yang belum lengkap",
+      title: "dokumen wajib belum lengkap",
       detail: `${n(d.dokumen_lengkap)} dari ${n(d.dokumen_wajib)} dokumen wajib sudah lengkap (NIB, NPWP, Akta).`,
       href: "/vendor",
       cta: "Lengkapi dokumen",
@@ -143,8 +144,8 @@ function cardsFor(role: Role, d: DashboardData): Card[] {
     {
       key: "penugasan",
       count: n(d.penugasan_aktif),
-      title: "Penugasan yang berjalan",
-      detail: "Pekerjaan yang sudah disetujui untuk vendor Bapak/Ibu.",
+      title: "penugasan berjalan",
+      detail: "Pekerjaan yang sudah disetujui.",
       href: "/penugasan",
       cta: "Lihat penugasan",
       done: "Belum ada penugasan yang berjalan.",
@@ -157,7 +158,7 @@ export default async function DashboardPage() {
   if (state.status !== "ready") return null;
   const { session } = state;
 
-  const data = await ringkasanDashboard(session);
+  const [data, analitik] = await Promise.all([ringkasanDashboard(session), analitikDashboard(session)]);
   const cards = cardsFor(session.role, data);
   const waiting = cards.filter((card) => card.count > 0);
   const waitingFirst = cards.findIndex((card) => card.count > 0);
@@ -166,44 +167,49 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-10">
       <PageHeader
-        title={`Selamat datang, ${session.nama}`}
+        title={`Halo, ${session.nama}`}
         description={`${ROLE_LABELS[session.role]}${place ? `, ${place}` : ""}. ${
           session.role === "vendor" && data.vendor_status
             ? `Status vendor: ${VENDOR_STATUS_TEXT[data.vendor_status] ?? data.vendor_status}`
             : waiting.length
-              ? `Ada ${waiting.length} hal yang perlu Bapak/Ibu perhatikan.`
-              : "Tidak ada yang perlu dilakukan sekarang."
+              ? `Ada ${waiting.length} hal yang perlu diurus.`
+              : "Semua sudah beres."
         }`}
       />
 
       <section aria-labelledby="tugas">
-        <h2 id="tugas" className="text-section font-semibold text-navy">Yang perlu Bapak/Ibu lakukan</h2>
-        <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+        <h2 id="tugas" className="text-section font-semibold text-navy">Perlu diurus</h2>
+        <ul className="mt-4 divide-y divide-line rounded-lg border border-line bg-surface">
           {cards.map((card, index) => (
-            <li key={card.key} data-tour={index === 0 ? "tugas" : undefined} className="flex flex-col rounded-lg border border-line bg-surface p-5">
-              <p className="text-table font-medium text-muted">{card.title}</p>
-              <p className="mt-2 text-[2.25rem] leading-10 font-semibold text-navy tabular-nums">{card.count}</p>
-              <p className="mt-2 flex-1 text-table text-muted">{card.detail}</p>
+            <li
+              key={card.key}
+              data-tour={index === 0 ? "tugas" : undefined}
+              className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-5 py-4"
+            >
+              <div className="min-w-0">
+                <p className="text-body">
+                  <span className="font-semibold text-navy tabular-nums">{card.count}</span> {card.title}
+                </p>
+                <p className="text-table text-muted">{card.count > 0 ? card.detail : card.done}</p>
+              </div>
               {card.count > 0 ? (
                 <Link
                   href={card.href}
-                  className={`mt-4 inline-flex min-h-11 w-fit items-center gap-2 rounded-md px-4 text-table font-medium transition-colors ${
+                  className={`inline-flex min-h-11 items-center rounded-md px-4 text-table font-medium transition-colors ${
                     index === waitingFirst ? "bg-primary text-surface hover:bg-navy" : "border border-line text-primary hover:bg-primary-soft"
                   }`}
                 >
                   {card.cta}
-                  <ArrowRight aria-hidden className="size-4" />
                 </Link>
               ) : (
-                <p className="mt-4 inline-flex min-h-11 items-center gap-2 text-table font-medium text-ok">
-                  <CircleCheck aria-hidden className="size-4" />
-                  {card.done}
-                </p>
+                <CircleCheck aria-label="Beres" className="size-5 text-ok" />
               )}
             </li>
           ))}
         </ul>
       </section>
+
+      <Analitik data={analitik} />
 
       <section className="rounded-lg border border-line bg-surface p-5">
         <h2 className="text-card font-semibold text-navy">Butuh bantuan?</h2>

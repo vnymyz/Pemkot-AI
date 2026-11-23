@@ -1513,3 +1513,179 @@ $$;
 
 revoke execute on function ringkasan_dashboard(uuid) from public, anon, authenticated;
 grant execute on function ringkasan_dashboard(uuid) to service_role;
+
+-- ---------------------------------------------------------------------------
+-- Dashboard analytics per role. Every number is counted here. The page only draws it.
+-- ---------------------------------------------------------------------------
+create or replace function analitik_dashboard(p_actor uuid)
+returns jsonb
+language plpgsql stable
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  a profiles%rowtype;
+  v_opd int;
+  v_hasil jsonb;
+begin
+  select * into a from profiles where id = p_actor;
+  if not found then
+    raise exception 'akses_ditolak';
+  end if;
+
+  -- Vendor: only its own data.
+  if a.role = 'vendor' then
+    return jsonb_build_object(
+      'role', a.role,
+      'kpi', jsonb_build_object(
+        'rating_rata', (select round(avg(r.skor_kualitas)::numeric, 1) from vendor_ratings r where r.vendor_id = a.vendor_id),
+        'jumlah_penilaian', (select count(*) from vendor_ratings r where r.vendor_id = a.vendor_id),
+        'tepat_waktu_persen', (select round(100.0 * count(*) filter (where r.tepat_waktu) / nullif(count(*), 0))
+                                 from vendor_ratings r where r.vendor_id = a.vendor_id),
+        'proyek_berjalan', (select count(*) from project_assignments x
+                             where x.vendor_id = a.vendor_id and x.status in ('disetujui', 'berjalan')),
+        'proyek_selesai', (select count(*) from project_assignments x
+                            where x.vendor_id = a.vendor_id and x.status = 'selesai'),
+        'nilai_total', (select coalesce(sum(x.nilai), 0) from project_assignments x
+                         where x.vendor_id = a.vendor_id and x.status in ('disetujui', 'berjalan', 'selesai')),
+        'kapasitas_proyek', (select v.kapasitas_proyek from vendors v where v.id = a.vendor_id),
+        'total_tenaga', (select v.total_tenaga from vendors v where v.id = a.vendor_id)
+      ),
+      'penilaian', (select coalesce(jsonb_agg(jsonb_build_object(
+                            'nomor', pr.nomor, 'judul', pr.judul, 'skor', r.skor_kualitas, 'tepat_waktu', r.tepat_waktu)
+                          order by pr.mulai), '[]'::jsonb)
+                      from vendor_ratings r join projects pr on pr.id = r.project_id
+                     where r.vendor_id = a.vendor_id),
+      'penugasan_status', (select coalesce(jsonb_agg(jsonb_build_object('status', t.status, 'jumlah', t.n)), '[]'::jsonb)
+                             from (select x.status, count(*) n from project_assignments x
+                                    where x.vendor_id = a.vendor_id and x.status in ('disetujui', 'berjalan', 'selesai')
+                                    group by x.status) t),
+      'nilai_bulanan', (select coalesce(jsonb_agg(jsonb_build_object('bulan', to_char(m.bulan, 'YYYY-MM'),
+                                                                     'nilai', coalesce(s.nilai, 0), 'jumlah', coalesce(s.n, 0))
+                                                  order by m.bulan), '[]'::jsonb)
+                          from (select generate_series(date_trunc('month', greatest(b.lo, b.hi - interval '11 months')),
+                                                       date_trunc('month', b.hi), interval '1 month') as bulan
+                                  from (select min(x.mulai) lo, max(x.mulai) hi from project_assignments x
+                                         where x.vendor_id = a.vendor_id and x.status in ('disetujui', 'berjalan', 'selesai')) b
+                                 where b.lo is not null) m
+                          left join (select date_trunc('month', x.mulai) bulan, sum(x.nilai) nilai, count(*) n
+                                       from project_assignments x
+                                      where x.vendor_id = a.vendor_id and x.status in ('disetujui', 'berjalan', 'selesai')
+                                      group by 1) s on s.bulan = m.bulan),
+      'dokumen', (select coalesce(jsonb_agg(jsonb_build_object('jenis', d.jenis, 'status', d.status_cek) order by d.jenis), '[]'::jsonb)
+                    from vendor_documents d where d.vendor_id = a.vendor_id),
+      'sertifikat', (select coalesce(jsonb_agg(jsonb_build_object(
+                             'jenis', c.jenis, 'berlaku_sampai', c.berlaku_sampai, 'sisa_hari', c.berlaku_sampai - current_date)
+                           order by c.berlaku_sampai), '[]'::jsonb)
+                       from vendor_certifications c where c.vendor_id = a.vendor_id)
+    );
+  end if;
+
+  v_opd := case when a.role = 'pic_proyek' then a.opd_id else null end;
+
+  v_hasil := jsonb_build_object(
+    'role', a.role,
+    'kpi', jsonb_build_object(
+      'proyek_total', (select count(*) from projects pr where v_opd is null or pr.opd_id = v_opd),
+      'proyek_berjalan', (select count(*) from projects pr where (v_opd is null or pr.opd_id = v_opd) and pr.status = 'berjalan'),
+      'anggaran_total', (select coalesce(sum(pr.anggaran), 0) from projects pr where v_opd is null or pr.opd_id = v_opd),
+      'nilai_penugasan', (select coalesce(sum(x.nilai), 0) from project_assignments x join projects pr on pr.id = x.project_id
+                           where (v_opd is null or pr.opd_id = v_opd) and x.status in ('disetujui', 'berjalan', 'selesai')),
+      'rata_hari_keputusan', (select round(avg(extract(epoch from (ap.decided_at - ap.created_at)) / 86400)::numeric, 1)
+                                from approvals ap
+                               where ap.decided_at is not null and (a.role = 'kepala_dinas' or ap.diusulkan_oleh = p_actor)),
+      'usulan_ditolak_persen', (select round(100.0 * count(*) filter (where ap.status = 'rejected') / nullif(count(*) filter (where ap.status <> 'pending'), 0))
+                                  from approvals ap where a.role = 'kepala_dinas' or ap.diusulkan_oleh = p_actor)
+    ),
+    'proyek_status', (select coalesce(jsonb_agg(jsonb_build_object('status', t.status, 'jumlah', t.n)), '[]'::jsonb)
+                        from (select pr.status, count(*) n from projects pr
+                               where v_opd is null or pr.opd_id = v_opd group by pr.status) t),
+    'proyek_prioritas', (select coalesce(jsonb_agg(jsonb_build_object('prioritas', t.prioritas, 'jumlah', t.n)), '[]'::jsonb)
+                           from (select coalesce(pr.prioritas, 'belum diisi') prioritas, count(*) n from projects pr
+                                  where v_opd is null or pr.opd_id = v_opd group by 1) t),
+    'penugasan_status', (select coalesce(jsonb_agg(jsonb_build_object('status', t.status, 'jumlah', t.n)), '[]'::jsonb)
+                           from (select x.status, count(*) n from project_assignments x join projects pr on pr.id = x.project_id
+                                  where v_opd is null or pr.opd_id = v_opd group by x.status) t),
+    'nilai_bulanan', (select coalesce(jsonb_agg(jsonb_build_object('bulan', to_char(m.bulan, 'YYYY-MM'),
+                                                                   'nilai', coalesce(s.nilai, 0), 'jumlah', coalesce(s.n, 0))
+                                                order by m.bulan), '[]'::jsonb)
+                        from (select generate_series(date_trunc('month', greatest(b.lo, b.hi - interval '11 months')),
+                                                     date_trunc('month', b.hi), interval '1 month') as bulan
+                                from (select min(x.mulai) lo, max(x.mulai) hi
+                                        from project_assignments x join projects pr on pr.id = x.project_id
+                                       where (v_opd is null or pr.opd_id = v_opd) and x.status in ('disetujui', 'berjalan', 'selesai')) b
+                               where b.lo is not null) m
+                        left join (select date_trunc('month', x.mulai) bulan, sum(x.nilai) nilai, count(*) n
+                                     from project_assignments x join projects pr on pr.id = x.project_id
+                                    where (v_opd is null or pr.opd_id = v_opd) and x.status in ('disetujui', 'berjalan', 'selesai')
+                                    group by 1) s on s.bulan = m.bulan),
+    'keputusan', (select coalesce(jsonb_agg(jsonb_build_object('jenis', t.jenis, 'menunggu', t.menunggu,
+                                                               'disetujui', t.disetujui, 'ditolak', t.ditolak) order by t.jenis), '[]'::jsonb)
+                    from (select ap.jenis,
+                                 count(*) filter (where ap.status = 'pending') menunggu,
+                                 count(*) filter (where ap.status = 'approved') disetujui,
+                                 count(*) filter (where ap.status = 'rejected') ditolak
+                            from approvals ap
+                           where a.role = 'kepala_dinas' or ap.diusulkan_oleh = p_actor
+                           group by ap.jenis) t)
+  );
+
+  if a.role in ('admin_pengadaan', 'kepala_dinas') then
+    v_hasil := v_hasil || jsonb_build_object(
+      'kpi', (v_hasil -> 'kpi') || jsonb_build_object(
+        'vendor_total', (select count(*) from vendors),
+        'vendor_aktif', (select count(*) from vendors where status = 'aktif')
+      ),
+      'vendor_status', (select coalesce(jsonb_agg(jsonb_build_object('status', t.status, 'jumlah', t.n)), '[]'::jsonb)
+                          from (select v.status, count(*) n from vendors v group by v.status) t),
+      'vendor_wilayah', (select coalesce(jsonb_agg(jsonb_build_object('wilayah', t.wilayah, 'jumlah', t.n) order by t.n desc), '[]'::jsonb)
+                           from (select coalesce(v.wilayah, 'belum diisi') wilayah, count(*) n from vendors v
+                                  where v.status = 'aktif' group by 1 order by n desc limit 6) t),
+      'vendor_kategori', (select coalesce(jsonb_agg(jsonb_build_object('kategori', t.nama, 'jumlah', t.n) order by t.n desc), '[]'::jsonb)
+                            from (select c.nama, count(distinct s.vendor_id) n
+                                    from vendor_services s
+                                    join service_categories c on c.id = s.category_id
+                                    join vendors v on v.id = s.vendor_id and v.status = 'aktif'
+                                   group by c.nama order by n desc, c.nama limit 8) t),
+      'anggaran_opd', (select coalesce(jsonb_agg(jsonb_build_object('opd', t.nama, 'anggaran', t.anggaran, 'nilai', t.nilai) order by t.anggaran desc), '[]'::jsonb)
+                         from (select o.nama, coalesce(sum(pr.anggaran), 0) anggaran,
+                                      coalesce(sum((select sum(x.nilai) from project_assignments x
+                                                     where x.project_id = pr.id and x.status in ('disetujui', 'berjalan', 'selesai'))), 0) nilai
+                                 from opd o join projects pr on pr.opd_id = o.id
+                                group by o.nama order by anggaran desc limit 6) t),
+      'kapasitas', (select coalesce(jsonb_agg(jsonb_build_object('nama', t.nama, 'kapasitas', t.kapasitas_proyek, 'terpakai', t.terpakai)
+                                              order by t.terpakai::numeric / nullif(t.kapasitas_proyek, 0) desc nulls last, t.nama), '[]'::jsonb)
+                      from (select v.nama, v.kapasitas_proyek,
+                                   (select count(*) from project_assignments x
+                                     where x.vendor_id = v.id and x.status in ('disetujui', 'berjalan')) terpakai
+                              from vendors v where v.status = 'aktif'
+                             order by 3 desc nulls last, v.nama limit 6) t),
+      'vendor_terbaik', (select coalesce(jsonb_agg(jsonb_build_object('nama', t.nama, 'rata', t.rata, 'jumlah', t.n,
+                                                                      'tepat_waktu_persen', t.tw) order by t.rata desc, t.tw desc), '[]'::jsonb)
+                           from (select v.nama, round(avg(r.skor_kualitas)::numeric, 1) rata, count(*) n,
+                                        round(100.0 * count(*) filter (where r.tepat_waktu) / count(*)) tw
+                                   from vendor_ratings r join vendors v on v.id = r.vendor_id
+                                  group by v.nama order by 2 desc, 4 desc limit 5) t),
+      'sertifikat', jsonb_build_object(
+        'kedaluwarsa', (select count(*) from vendor_certifications c join vendors v on v.id = c.vendor_id
+                         where v.status = 'aktif' and c.berlaku_sampai < current_date),
+        'hari_30', (select count(*) from vendor_certifications c join vendors v on v.id = c.vendor_id
+                     where v.status = 'aktif' and c.berlaku_sampai between current_date and current_date + 30),
+        'hari_60', (select count(*) from vendor_certifications c join vendors v on v.id = c.vendor_id
+                     where v.status = 'aktif' and c.berlaku_sampai between current_date + 31 and current_date + 60),
+        'hari_90', (select count(*) from vendor_certifications c join vendors v on v.id = c.vendor_id
+                     where v.status = 'aktif' and c.berlaku_sampai between current_date + 61 and current_date + 90),
+        'daftar', (select coalesce(jsonb_agg(jsonb_build_object('vendor', t.nama, 'jenis', t.jenis,
+                                                                'berlaku_sampai', t.berlaku_sampai, 'sisa_hari', t.sisa) order by t.berlaku_sampai), '[]'::jsonb)
+                     from (select v.nama, c.jenis, c.berlaku_sampai, c.berlaku_sampai - current_date sisa
+                             from vendor_certifications c join vendors v on v.id = c.vendor_id
+                            where v.status = 'aktif' and c.berlaku_sampai <= current_date + 90
+                            order by c.berlaku_sampai limit 6) t)
+      )
+    );
+  end if;
+  return v_hasil;
+end;
+$$;
+
+revoke execute on function analitik_dashboard(uuid) from public, anon, authenticated;
+grant execute on function analitik_dashboard(uuid) to service_role;

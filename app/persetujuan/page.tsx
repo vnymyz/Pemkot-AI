@@ -25,8 +25,8 @@ export default async function PersetujuanPage({
       <div className="rounded-lg border border-line bg-surface">
         <EmptyState
           icon={ShieldCheck}
-          title="Halaman ini khusus Kepala Dinas"
-          description="Usulan yang Bapak/Ibu buat dapat dipantau di halaman Penugasan."
+          title="Halaman ini hanya untuk Kepala Dinas"
+          description="Usulan Bapak/Ibu bisa dipantau di halaman Penugasan."
           action={{ label: "Buka Penugasan", href: "/penugasan" }}
         />
       </div>
@@ -41,14 +41,14 @@ export default async function PersetujuanPage({
     <div className="max-w-5xl space-y-4">
       <PageHeader
         title="Persetujuan"
-        description="Usulan yang menunggu keputusan Bapak/Ibu. Baca rincian, tulis catatan bila perlu, lalu setujui atau tolak."
+        description="Usulan yang menunggu keputusan Bapak/Ibu."
       />
 
       {rows.length === 0 ? (
         <div className="rounded-lg border border-line bg-surface">
           <EmptyState
             title="Belum ada usulan"
-            description="Usulan penugasan dan perubahan vendor akan muncul di sini untuk diputuskan."
+            description="Usulan baru akan muncul di sini."
           />
         </div>
       ) : (
@@ -59,7 +59,7 @@ export default async function PersetujuanPage({
                 <div>
                   {item.jenis === "project_assignment" ? (
                     <>
-                      <p className="text-caption text-muted">{item.project_nomor} · Usulan penugasan</p>
+                      <p className="text-caption text-muted">{item.project_nomor}, usulan penugasan</p>
                       <h2 className="text-card font-semibold text-navy">{item.project_judul}</h2>
                       <p className="mt-1 text-table">Vendor: <span className="font-medium">{item.vendor_nama}</span></p>
                     </>

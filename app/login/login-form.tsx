@@ -12,10 +12,10 @@ const inputClass =
   "block h-11 w-full rounded-md border border-line bg-surface px-3 text-body text-text";
 
 const QUICK_ROLES = [
-  { role: "admin_pengadaan", label: "Admin Pengadaan", hint: "Mengelola vendor dan usulan" },
-  { role: "pic_proyek", label: "PIC Proyek", hint: "Mencari vendor untuk proyek" },
-  { role: "kepala_dinas", label: "Kepala Dinas", hint: "Menyetujui atau menolak usulan" },
-  { role: "vendor", label: "Vendor", hint: "Mengisi data dan dokumen" },
+  { role: "admin_pengadaan", label: "Admin Pengadaan", hint: "Kelola vendor, ajukan usulan" },
+  { role: "pic_proyek", label: "PIC Proyek", hint: "Cari vendor untuk proyek" },
+  { role: "kepala_dinas", label: "Kepala Dinas", hint: "Setujui atau tolak usulan" },
+  { role: "vendor", label: "Vendor", hint: "Isi data dan dokumen" },
 ] as const;
 
 export function LoginForm({
@@ -112,7 +112,7 @@ export function LoginForm({
           {next ? <input type="hidden" name="next" value={next} /> : null}
           <fieldset disabled={quickPending || !quickLoginEnabled} aria-busy={quickPending} className="space-y-3">
             <legend className="text-table font-medium text-navy">Coba sebagai</legend>
-            <p className="text-caption text-muted">Khusus demo. Pilih satu peran untuk melihat tampilan akun tersebut.</p>
+            <p className="text-caption text-muted">Khusus demo. Pilih satu peran untuk mencoba.</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {QUICK_ROLES.map(({ role, label, hint }) => (
                 <button

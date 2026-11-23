@@ -36,7 +36,7 @@ export default async function BerkasPage({
     <div>
       <PageHeader
         title="Berkas"
-        description={`File Word, Excel, dan PowerPoint buatan Asisten AI${isKepala ? " dari semua pengguna" : " milik Bapak/Ibu"}. Tautan unduh berlaku 1 jam sejak diklik.`}
+        description={`File yang dibuat lewat Asisten AI${isKepala ? ", dari semua pengguna" : ""}. Tautan unduh berlaku 1 jam.`}
         actions={
           <Link
             href="/chat"
@@ -52,7 +52,7 @@ export default async function BerkasPage({
           <EmptyState
             icon={Files}
             title="Belum ada berkas"
-            description="Minta Asisten AI membuat file Word, Excel, atau PowerPoint dari data yang boleh Bapak/Ibu lihat. Contoh: &quot;Buatkan Excel daftar penugasan&quot;."
+            description={'Minta Asisten AI membuatnya, misalnya "Buatkan Excel daftar penugasan".'}
             action={{ label: "Buka Asisten AI", href: "/chat" }}
           />
         </div>

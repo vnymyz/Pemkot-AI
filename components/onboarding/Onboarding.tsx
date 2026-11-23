@@ -9,47 +9,47 @@ type Placement = "right" | "bottom" | "left" | "top";
 /** `path` is the page the step lives on. The tour opens that page itself, so it can walk through a whole job. */
 type Step = { path: string; target: string; title: string; text: string; placement?: Placement };
 
-const NAV_CHAT: Step = { path: "/dashboard", target: "nav-chat", title: "Minta bantuan Asisten AI", text: "Tanyakan apa saja tentang vendor dan proyek, atau minta dibuatkan file Word, Excel, dan PowerPoint dari data yang ada." };
-const NOTIF: Step = { path: "/dashboard", target: "notif", placement: "bottom", title: "Pantau pemberitahuan", text: "Keputusan atas usulan dan hal yang perlu perhatian muncul di sini." };
-const PANDUAN: Step = { path: "/dashboard", target: "panduan", placement: "right", title: "Ulangi panduan kapan saja", text: "Tombol ini membuka kembali panduan langkah demi langkah ini." };
+const NAV_CHAT: Step = { path: "/dashboard", target: "nav-chat", title: "Asisten AI", text: "Tanya soal vendor dan proyek, atau minta dibuatkan file Word, Excel, dan PowerPoint." };
+const NOTIF: Step = { path: "/dashboard", target: "notif", placement: "bottom", title: "Pemberitahuan", text: "Keputusan atas usulan Bapak/Ibu muncul di sini." };
+const PANDUAN: Step = { path: "/dashboard", target: "panduan", placement: "right", title: "Panduan", text: "Klik di sini untuk melihat panduan ini lagi." };
 
 const STEPS: Record<Role, Step[]> = {
   admin_pengadaan: [
-    { path: "/dashboard", target: "tugas", placement: "bottom", title: "Mulai dari dashboard", text: "Sebagai Admin Pengadaan, Bapak/Ibu menyiapkan vendor dan mengusulkan penugasan. Kartu ini menunjukkan apa yang perlu dikerjakan lebih dulu." },
-    { path: "/vendor", target: "vendor-tambah", placement: "bottom", title: "Tambahkan vendor", text: "Daftarkan perusahaan baru. Isi datanya, lalu simpan sebagai draft." },
-    { path: "/vendor", target: "vendor-filter", placement: "bottom", title: "Cari dan saring", text: "Cari berdasarkan nama atau layanan. Saring status Verifikasi untuk melihat vendor yang menunggu Bapak/Ibu." },
-    { path: "/vendor", target: "vendor-tabel", title: "Periksa dokumen", text: "Buka satu vendor. Periksa NIB, NPWP, dan Akta, lalu ajukan aktivasi ke Kepala Dinas bila sudah lengkap." },
-    { path: "/proyek", target: "proyek-tabel", title: "Pilih proyek", text: "Buka proyek yang masih mencari vendor, lalu pilih \"Lihat vendor yang siap\" untuk melihat peringkat dan alasan skornya." },
-    { path: "/penugasan", target: "penugasan-tabel", title: "Ajukan dan pantau", text: "Usulan penugasan tampil di sini dengan status Menunggu. Keputusan akhir ada pada Kepala Dinas." },
+    { path: "/dashboard", target: "tugas", placement: "bottom", title: "Mulai dari sini", text: "Daftar ini menunjukkan apa yang perlu diurus lebih dulu." },
+    { path: "/vendor", target: "vendor-tambah", placement: "bottom", title: "Tambah vendor", text: "Daftarkan perusahaan baru, isi datanya, lalu simpan sebagai draft." },
+    { path: "/vendor", target: "vendor-filter", placement: "bottom", title: "Cari vendor", text: "Cari berdasarkan nama atau layanan. Pilih status Verifikasi untuk melihat yang menunggu." },
+    { path: "/vendor", target: "vendor-tabel", title: "Periksa dokumen", text: "Buka satu vendor dan cek NIB, NPWP, dan Akta. Kalau lengkap, ajukan aktivasi ke Kepala Dinas." },
+    { path: "/proyek", target: "proyek-tabel", title: "Pilih proyek", text: "Buka proyek yang mencari vendor, lalu klik \"Lihat vendor yang siap\"." },
+    { path: "/penugasan", target: "penugasan-tabel", title: "Pantau usulan", text: "Usulan penugasan muncul di sini. Kepala Dinas yang memutuskan." },
     NAV_CHAT,
     NOTIF,
     PANDUAN,
   ],
   pic_proyek: [
-    { path: "/dashboard", target: "tugas", placement: "bottom", title: "Mulai dari dashboard", text: "Sebagai PIC Proyek, Bapak/Ibu mencari vendor untuk proyek dinas sendiri. Kartu ini menunjukkan proyek yang masih butuh vendor." },
-    { path: "/proyek", target: "proyek-filter", placement: "bottom", title: "Temukan proyek", text: "Cari proyek dinas Bapak/Ibu. Saring status \"Mencari vendor\" untuk yang paling mendesak." },
-    { path: "/proyek", target: "proyek-tabel", title: "Lihat vendor yang siap", text: "Buka proyek, lalu pilih \"Lihat vendor yang siap\". Bandingkan skor dan alasan setiap vendor." },
-    { path: "/penugasan", target: "penugasan-tabel", title: "Ajukan dan pantau", text: "Ajukan penugasan dari halaman vendor yang siap. Usulan tampil di sini sampai Kepala Dinas memutuskan." },
+    { path: "/dashboard", target: "tugas", placement: "bottom", title: "Mulai dari sini", text: "Proyek dinas Bapak/Ibu yang masih butuh vendor ada di sini." },
+    { path: "/proyek", target: "proyek-filter", placement: "bottom", title: "Cari proyek", text: "Pilih status \"Mencari vendor\" untuk yang paling mendesak." },
+    { path: "/proyek", target: "proyek-tabel", title: "Lihat vendor yang siap", text: "Buka proyek, lalu klik \"Lihat vendor yang siap\" untuk membandingkan skor." },
+    { path: "/penugasan", target: "penugasan-tabel", title: "Ajukan dan pantau", text: "Ajukan dari halaman vendor yang siap. Usulan tampil di sini sampai Kepala Dinas memutuskan." },
     NAV_CHAT,
     NOTIF,
     PANDUAN,
   ],
   kepala_dinas: [
-    { path: "/dashboard", target: "tugas", placement: "bottom", title: "Mulai dari dashboard", text: "Sebagai Kepala Dinas, Bapak/Ibu memutuskan usulan. Kartu pertama menunjukkan usulan yang menunggu." },
-    { path: "/persetujuan", target: "persetujuan-kartu", placement: "bottom", title: "Baca usulan", text: "Setiap usulan menampilkan pengusul, vendor, proyek, dan rinciannya." },
-    { path: "/persetujuan", target: "persetujuan-keputusan", placement: "top", title: "Putuskan", text: "Tulis catatan bila perlu, lalu setujui atau tolak. Pengusul akan melihat hasilnya." },
-    { path: "/penugasan", target: "penugasan-tabel", title: "Lihat hasilnya", text: "Penugasan yang disetujui muncul di sini dan mengurangi kapasitas vendor." },
-    { path: "/berkas", target: "berkas-tabel", title: "Ambil berkas", text: "File PowerPoint atau Excel buatan Asisten AI untuk rapat dapat diunduh dari sini." },
+    { path: "/dashboard", target: "tugas", placement: "bottom", title: "Mulai dari sini", text: "Usulan yang menunggu keputusan Bapak/Ibu ada di paling atas." },
+    { path: "/persetujuan", target: "persetujuan-kartu", placement: "bottom", title: "Baca usulan", text: "Di sini ada pengusul, vendor, proyek, dan rinciannya." },
+    { path: "/persetujuan", target: "persetujuan-keputusan", placement: "top", title: "Putuskan", text: "Tulis catatan kalau perlu, lalu setujui atau tolak." },
+    { path: "/penugasan", target: "penugasan-tabel", title: "Hasilnya", text: "Penugasan yang disetujui muncul di sini dan mengurangi kapasitas vendor." },
+    { path: "/berkas", target: "berkas-tabel", title: "Berkas", text: "File PowerPoint atau Excel dari Asisten AI bisa diunduh di sini." },
     NAV_CHAT,
     NOTIF,
     PANDUAN,
   ],
   vendor: [
-    { path: "/dashboard", target: "tugas", placement: "bottom", title: "Mulai dari dashboard", text: "Sebagai vendor, Bapak/Ibu melengkapi data perusahaan agar dapat diusulkan pada proyek. Kartu ini menunjukkan yang masih kurang." },
-    { path: "/vendor", target: "vendor-stepper", placement: "bottom", title: "Lihat tahap Bapak/Ibu", text: "Vendor melewati tiga tahap: Draft, Verifikasi, lalu Aktif. Tahap sekarang ditandai di sini." },
-    { path: "/vendor", target: "dokumen", title: "Unggah dokumen", text: "Unggah NIB, NPWP, dan Akta. Setiap dokumen diperiksa otomatis, lalu oleh Admin bila perlu." },
-    { path: "/vendor", target: "vendor-kirim", title: "Kirim untuk verifikasi", text: "Setelah dokumen wajib lengkap, kirim vendor untuk diverifikasi Admin." },
-    { path: "/penugasan", target: "penugasan-tabel", title: "Pantau penugasan", text: "Setelah aktif dan diusulkan, pekerjaan yang disetujui tampil di sini." },
+    { path: "/dashboard", target: "tugas", placement: "bottom", title: "Mulai dari sini", text: "Dokumen yang masih kurang dan penugasan Bapak/Ibu ada di sini." },
+    { path: "/vendor", target: "vendor-stepper", placement: "bottom", title: "Tahap Bapak/Ibu", text: "Ada tiga tahap: Draft, Verifikasi, lalu Aktif." },
+    { path: "/vendor", target: "dokumen", title: "Unggah dokumen", text: "Unggah NIB, NPWP, dan Akta. Setiap dokumen dicek otomatis, lalu oleh Admin kalau perlu." },
+    { path: "/vendor", target: "vendor-kirim", title: "Kirim verifikasi", text: "Kalau dokumen wajib sudah lengkap, kirim untuk diverifikasi Admin." },
+    { path: "/penugasan", target: "penugasan-tabel", title: "Penugasan", text: "Pekerjaan yang sudah disetujui muncul di sini." },
     NAV_CHAT,
     PANDUAN,
   ],

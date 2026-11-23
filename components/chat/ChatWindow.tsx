@@ -67,9 +67,9 @@ export function ChatWindow({
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-4 md:p-6">
           {messages.length === 0 ? (
             <div className="py-6">
-              <h1 className="text-[2rem] leading-10 font-semibold text-navy">Apa yang bisa saya bantu?</h1>
+              <h1 className="text-[2rem] leading-10 font-semibold text-navy">Mau tanya apa?</h1>
               <p className="mt-2 text-body text-muted">
-                Saya menjawab berdasarkan data vendor dan proyek di sistem. Pilih contoh di bawah, atau tulis pertanyaan sendiri.
+                Jawaban saya diambil dari data vendor dan proyek di sistem. Pilih contoh di bawah atau tulis sendiri.
               </p>
               <div data-tour="chat-saran" className="mt-6 grid gap-3 sm:grid-cols-2">
                 {suggestions.map((item) => (
@@ -84,7 +84,7 @@ export function ChatWindow({
                 ))}
               </div>
               <p className="mt-6 text-caption text-muted">
-                Saya hanya membahas vendor, proyek, dan pekerjaan kantor. Usulan yang saya siapkan tetap menunggu persetujuan.
+                Saya hanya membahas vendor, proyek, dan pekerjaan kantor. Usulan dari saya tetap menunggu persetujuan.
               </p>
             </div>
           ) : (

@@ -1,4 +1,4 @@
-import { Inbox, type LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -7,19 +7,16 @@ export function EmptyState({
   title,
   description,
   action,
-  icon: Icon = Inbox,
 }: {
   title: string;
   description?: ReactNode;
   action?: { label: string; href: string };
+  /** Kept so callers do not break. Empty states are text only. */
   icon?: LucideIcon;
 }) {
   return (
     <div className="flex flex-col items-center px-6 py-12 text-center">
-      <span aria-hidden className="flex size-12 items-center justify-center rounded-full bg-primary-soft text-primary">
-        <Icon className="size-6" />
-      </span>
-      <h2 className="mt-4 text-card font-semibold text-navy">{title}</h2>
+      <h2 className="text-card font-semibold text-navy">{title}</h2>
       {description ? <p className="mt-1 max-w-md text-table text-muted">{description}</p> : null}
       {action ? (
         <Link

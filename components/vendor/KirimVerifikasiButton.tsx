@@ -38,7 +38,7 @@ export function KirimVerifikasiButton({
         return;
       }
       setOpen(false);
-      toast.success("Vendor dikirim untuk verifikasi.");
+      toast.success("Terkirim. Admin akan memeriksa dokumen.");
       router.refresh();
     } catch {
       setError("Vendor belum terkirim untuk verifikasi. Periksa koneksi, lalu coba lagi.");

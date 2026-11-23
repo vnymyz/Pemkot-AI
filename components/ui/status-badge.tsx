@@ -50,10 +50,10 @@ const ASSIGNMENT: Record<string, Style> = {
 
 /** One plain sentence per status, shown as a tooltip so a new person does not have to guess. */
 const HINT: Record<string, string> = {
-  Aktif: "Vendor sudah disetujui dan dapat diusulkan pada proyek.",
-  Verifikasi: "Dokumen vendor sedang diperiksa Admin.",
-  Draft: "Data vendor masih disusun dan belum dikirim.",
-  Ditolak: "Usulan ditolak. Data dapat diperbaiki lalu dikirim ulang.",
+  Aktif: "Sudah disetujui dan bisa diusulkan ke proyek.",
+  Verifikasi: "Admin sedang memeriksa dokumennya.",
+  Draft: "Datanya masih disusun, belum dikirim.",
+  Ditolak: "Bisa diperbaiki lalu dikirim ulang.",
   "Daftar hitam": "Vendor tidak dapat dipakai pada proyek.",
   Diarsipkan: "Vendor tidak lagi dipakai, riwayatnya tetap tersimpan.",
   Berlaku: "Sertifikat masih berlaku.",
@@ -65,7 +65,7 @@ const HINT: Record<string, string> = {
   Selesai: "Pekerjaan sudah selesai.",
   Ditunda: "Proyek ditunda untuk sementara.",
   Dibatalkan: "Dibatalkan dan tidak dilanjutkan.",
-  Menunggu: "Usulan menunggu keputusan Kepala Dinas.",
+  Menunggu: "Menunggu keputusan Kepala Dinas.",
   Disetujui: "Kepala Dinas menyetujui. Vendor boleh mulai.",
   Ready: "Vendor memenuhi semua syarat wajib proyek ini.",
   "Tidak bisa": "Vendor tidak memenuhi satu atau lebih syarat wajib.",
@@ -73,7 +73,7 @@ const HINT: Record<string, string> = {
   "Tidak cocok": "Isi dokumen berbeda dari data vendor.",
   "Perlu diperiksa manual": "Admin perlu memeriksa dokumen ini sendiri.",
   "Belum diperiksa": "Dokumen belum diperiksa.",
-  "Belum ada riwayat": "Vendor belum pernah mengerjakan proyek di sini, jadi belum ada penilaian.",
+  "Belum ada riwayat": "Belum pernah mengerjakan proyek di sini, jadi belum dinilai.",
 };
 
 function Badge({ style }: { style: Style }) {

@@ -1,4 +1,3 @@
-import { Check } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Brand } from "@/components/ui/brand";
@@ -6,12 +5,6 @@ import { quickLoginAllowed } from "@/lib/auth/quick-login";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "Masuk | Pemkot-AI" };
-
-const POINTS = [
-  "Cari vendor dan lihat kesiapannya untuk sebuah proyek.",
-  "Ajukan penugasan. Keputusan akhir ada pada Kepala Dinas.",
-  "Buat file Word, Excel, dan PowerPoint dari data yang ada.",
-];
 
 export default async function LoginPage({
   searchParams,
@@ -37,16 +30,8 @@ export default async function LoginPage({
           <Brand />
         </div>
         <div className="relative max-w-md">
-          <h1 className="text-[2rem] leading-10 font-semibold">Kelola vendor dan proyek dalam satu tempat.</h1>
-          <p className="mt-3 text-body text-surface/90">Asisten AI membantu menjawab, menyusun rekomendasi, dan menyiapkan berkas.</p>
-          <ul className="mt-6 space-y-3">
-            {POINTS.map((point) => (
-              <li key={point} className="flex items-start gap-3 text-table">
-                <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-gold" />
-                {point}
-              </li>
-            ))}
-          </ul>
+          <h1 className="text-[2rem] leading-10 font-semibold">Masuk untuk mengelola vendor dan proyek.</h1>
+          <p className="mt-3 text-body text-surface/90">Asisten AI bisa menjawab pertanyaan, memberi rekomendasi vendor, dan membuat file.</p>
         </div>
         <div className="relative space-y-1 text-caption text-surface/85">
           <p>Versi demo. Seluruh data bersifat fiktif.</p>
@@ -76,8 +61,8 @@ export default async function LoginPage({
 
       <main className="flex items-center justify-center px-4 py-10 md:px-12">
         <div className="w-full max-w-md">
-          <h2 className="text-section font-semibold text-navy">Masuk ke akun</h2>
-          <p className="mt-1 mb-6 text-table text-muted">Gunakan email dan kata sandi akun demo Bapak/Ibu.</p>
+          <h2 className="text-section font-semibold text-navy">Masuk</h2>
+          <p className="mt-1 mb-6 text-table text-muted">Pakai email dan kata sandi akun demo.</p>
           <LoginForm
             next={typeof next === "string" ? next : undefined}
             quickLoginVisible={quickLoginAllowed()}

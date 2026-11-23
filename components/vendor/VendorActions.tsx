@@ -43,7 +43,7 @@ export function VendorActions({
       }
       setRequested(true);
       setDialogOpen(false);
-      toast.success("Usulan arsip dibuat. Menunggu persetujuan Kepala Dinas.");
+      toast.success("Usulan arsip dikirim. Menunggu Kepala Dinas.");
       router.refresh();
     } catch {
       setError("Usulan arsip belum dibuat. Periksa koneksi, lalu coba lagi.");

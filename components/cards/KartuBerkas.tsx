@@ -27,7 +27,7 @@ export function KartuBerkas({ data }: { data: { berkas: BerkasCard } }) {
   useEffect(() => {
     if (announced.has(berkas.id)) return;
     announced.add(berkas.id);
-    if (Date.now() - new Date(berkas.dibuat).getTime() < FRESH_MS) toast.success("Berkas dibuat. Siap diunduh.");
+    if (Date.now() - new Date(berkas.dibuat).getTime() < FRESH_MS) toast.success("File siap diunduh.");
   }, [berkas.id, berkas.dibuat]);
   const Icon = { xlsx: FileSpreadsheet, pptx: Presentation, docx: FileText }[berkas.jenis];
   const size = berkas.jenis === "pptx" ? `${berkas.slide ?? 0} slide` : `${berkas.baris ?? 0} baris`;

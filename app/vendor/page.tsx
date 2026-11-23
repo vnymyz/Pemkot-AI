@@ -80,7 +80,7 @@ export default async function VendorPage({
     <div>
       <PageHeader
         title="Vendor"
-        description="Daftar perusahaan penyedia barang dan jasa. Buka satu vendor untuk melihat data, dokumen, dan kesiapannya."
+        description="Semua vendor terdaftar. Buka satu untuk melihat data dan dokumennya."
         actions={
           isAdmin ? (
             <Link

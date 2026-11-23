@@ -29,3 +29,13 @@ export const TIPE_LABEL: Record<string, string> = {
   jasa: "Jasa",
   barang_jasa: "Barang dan jasa",
 };
+
+/** Short Rupiah for charts: "Rp 9,4 miliar", "Rp 760 juta". */
+export function formatRupiahRingkas(value: number | string | null | undefined) {
+  const n = Number(value ?? 0);
+  if (!Number.isFinite(n)) return "Tidak ada data";
+  const short = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 });
+  if (Math.abs(n) >= 1_000_000_000) return `Rp ${short.format(n / 1_000_000_000)} miliar`;
+  if (Math.abs(n) >= 1_000_000) return `Rp ${short.format(n / 1_000_000)} juta`;
+  return formatRupiah(n);
+}

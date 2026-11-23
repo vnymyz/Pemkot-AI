@@ -108,8 +108,8 @@ export function FormDaftarVendor({ data }: { data: FormDaftarOutput }) {
         setSaved(true);
         toast.success(
           data.mode === "ajukan_perubahan"
-            ? "Usulan perubahan dibuat. Menunggu persetujuan Kepala Dinas."
-            : "Draft vendor disimpan.",
+            ? "Usulan perubahan dikirim. Menunggu Kepala Dinas."
+            : "Draft disimpan.",
         );
         router.refresh();
       }
