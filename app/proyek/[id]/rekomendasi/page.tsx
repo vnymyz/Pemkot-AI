@@ -52,15 +52,15 @@ export default async function RekomendasiPage({
       </div>
 
       <dl className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-md border border-line bg-surface p-4">
+        <div className="panel rounded-md border border-line bg-surface p-4">
           <dt className="text-caption text-muted">Vendor ready</dt>
           <dd className="text-page font-semibold text-ok tabular-nums">{data.jumlah_ready}</dd>
         </div>
-        <div className="rounded-md border border-line bg-surface p-4">
+        <div className="panel rounded-md border border-line bg-surface p-4">
           <dt className="text-caption text-muted">Vendor gugur</dt>
           <dd className="text-page font-semibold text-bad tabular-nums">{data.jumlah_gugur}</dd>
         </div>
-        <div className="rounded-md border border-line bg-surface p-4">
+        <div className="panel rounded-md border border-line bg-surface p-4">
           <dt className="text-caption text-muted">Kebutuhan</dt>
           <dd className="text-table">
             {data.kebutuhan.map((item) => (
@@ -103,7 +103,7 @@ export default async function RekomendasiPage({
       {data.gugur.length > 0 ? (
         <section aria-labelledby="gugur" className="space-y-3">
           <h2 id="gugur" className="text-section font-semibold text-navy">Vendor yang gugur</h2>
-          <div className="overflow-hidden rounded-md border border-line bg-surface">
+          <div className="overflow-hidden panel rounded-md border border-line bg-surface">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[680px] text-left text-table">
                 <thead className="bg-primary-soft">

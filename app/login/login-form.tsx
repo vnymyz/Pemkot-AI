@@ -1,9 +1,10 @@
 "use client";
 
 import { CircleX, Eye, EyeOff, LogIn } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { ProgressBar } from "@/components/ui/route-progress";
 import { Spinner } from "@/components/ui/spinner";
+import { toast } from "@/components/ui/toast";
 import { quickSignIn, signIn, type LoginState } from "./actions";
 
 const initialState: LoginState = { error: null };
@@ -29,6 +30,14 @@ export function LoginForm({
   const [state, action, pending] = useActionState(signIn, initialState);
   const [quickState, quickAction, quickPending] = useActionState(quickSignIn, initialState);
   const [showPassword, setShowPassword] = useState(false);
+  const [quickRole, setQuickRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (state.error) toast.error(state.error);
+  }, [state]);
+  useEffect(() => {
+    if (quickState.error) toast.error(quickState.error);
+  }, [quickState]);
 
   return (
     <div className="space-y-5">
@@ -93,7 +102,7 @@ export function LoginForm({
           className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-primary px-4 font-medium text-surface transition-colors hover:bg-navy disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
         >
           {pending ? <Spinner /> : <LogIn aria-hidden className="size-4" />}
-          {pending ? "Memproses" : "Masuk"}
+          Masuk
         </button>
       </form>
 
@@ -101,7 +110,7 @@ export function LoginForm({
         <form action={quickAction} className="space-y-3 border-t border-line pt-4">
           {quickPending ? <ProgressBar /> : null}
           {next ? <input type="hidden" name="next" value={next} /> : null}
-          <fieldset disabled={quickPending || !quickLoginEnabled} className="space-y-3">
+          <fieldset disabled={quickPending || !quickLoginEnabled} aria-busy={quickPending} className="space-y-3">
             <legend className="text-table font-medium text-navy">Login cepat sebagai</legend>
             <div className="grid grid-cols-2 gap-2">
               {QUICK_ROLES.map(({ role, label }) => (
@@ -110,9 +119,16 @@ export function LoginForm({
                   type="submit"
                   name="role"
                   value={role}
-                  className="inline-flex min-h-11 items-center justify-center rounded-md border border-line bg-surface px-3 text-table font-medium text-primary transition-colors hover:bg-primary-soft disabled:cursor-not-allowed disabled:bg-bg disabled:text-muted"
+                  onClick={() => setQuickRole(role)}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-line bg-surface px-3 text-table font-medium text-primary transition-colors hover:bg-primary-soft disabled:cursor-not-allowed disabled:bg-bg disabled:text-muted"
                 >
-                  {quickPending ? "Memproses" : label}
+                  {quickPending && quickRole === role ? (
+                    <>
+                      <Spinner />
+                      <span className="sr-only">Memproses </span>
+                    </>
+                  ) : null}
+                  {label}
                 </button>
               ))}
             </div>

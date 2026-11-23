@@ -122,7 +122,7 @@ export function SidebarNav({ items, nama, peran }: { items: NavItem[]; nama: str
                     title={collapsed ? item.label : undefined}
                     onClick={() => setOpen(false)}
                     className={`${row} font-medium transition-colors ${
-                      active ? "bg-surface text-navy" : "text-surface/90 hover:bg-primary"
+                      active ? "nav-active bg-surface text-navy" : "text-surface/90 hover:bg-primary"
                     }`}
                   >
                     <Icon aria-hidden className="size-4 shrink-0" />

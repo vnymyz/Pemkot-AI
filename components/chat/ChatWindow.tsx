@@ -51,7 +51,7 @@ export function ChatWindow({
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ block: "end" });
+    endRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
   }, [messages, status, error]);
 
   function send(text: string) {

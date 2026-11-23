@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { quickLoginAllowed } from "@/lib/auth/quick-login";
 import { publicSupabaseEnv } from "@/lib/db/env";
 import { userDb } from "@/lib/db/server";
 
@@ -57,7 +58,7 @@ export async function signIn(_previous: LoginState, formData: FormData): Promise
 }
 
 export async function quickSignIn(_previous: LoginState, formData: FormData): Promise<LoginState> {
-  if (process.env.NODE_ENV !== "development") {
+  if (!quickLoginAllowed()) {
     return { error: "Login cepat hanya tersedia saat aplikasi berjalan lokal." };
   }
 

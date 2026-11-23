@@ -16,7 +16,14 @@ export type FilterVendor = {
   limit?: number;
 };
 
-export class VendorError extends Error {}
+export class VendorError extends Error {
+  constructor(
+    message: string,
+    readonly detail?: string,
+  ) {
+    super(message);
+  }
+}
 
 function assertInternal(session: AuthSession) {
   if (session.role === "vendor") throw new VendorError("akses_ditolak");
@@ -95,7 +102,9 @@ export async function formDaftarVendor(
         };
       }
     }
-    if (own.status !== "draft" && !(session.role === "admin_pengadaan" && own.status === "aktif")) {
+    // A rejected vendor may fix its data. Saving returns it to draft.
+    const editable = own.status === "draft" || own.status === "ditolak";
+    if (!editable && !(session.role === "admin_pengadaan" && own.status === "aktif")) {
       return {
         mode: "tidak_bisa",
         status: own.status,
@@ -103,7 +112,7 @@ export async function formDaftarVendor(
       };
     }
     return {
-      mode: own.status === "draft" ? "perbarui" : "ajukan_perubahan",
+      mode: editable ? "perbarui" : "ajukan_perubahan",
       vendor_id: own.id,
       prefill: {
         nama: own.nama,
@@ -196,6 +205,39 @@ export async function ajukanPerubahanVendor(session: AuthSession, vendorId: stri
     throw new Error(`ajukan_perubahan_vendor failed: ${error.code}`);
   }
   return result as { approval_id: string; status: "pending" };
+}
+
+/** Moves a complete draft to verification. The database checks the required documents. */
+export async function kirimVerifikasiVendor(session: AuthSession, vendorId: string) {
+  if (session.role !== "admin_pengadaan" && session.role !== "vendor") throw new VendorError("akses_ditolak");
+  const { data, error } = await adminDb().rpc("kirim_verifikasi_vendor", {
+    p_actor: session.userId,
+    p_vendor_id: vendorId,
+  });
+  if (error) {
+    if (["akses_ditolak", "vendor_tidak_ditemukan", "bukan_draft", "layanan_kosong"].includes(error.message)) {
+      throw new VendorError(error.message);
+    }
+    if (error.message === "dokumen_belum_lengkap") throw new VendorError(error.message, error.details ?? undefined);
+    throw new Error(`kirim_verifikasi_vendor failed: ${error.code}`);
+  }
+  return data as { status: "verifikasi" };
+}
+
+/** Asks the Kepala Dinas to activate a vendor that is in verification. */
+export async function ajukanAktivasiVendor(session: AuthSession, vendorId: string) {
+  if (session.role !== "admin_pengadaan") throw new VendorError("akses_ditolak");
+  const { data, error } = await adminDb().rpc("ajukan_aktivasi_vendor", {
+    p_actor: session.userId,
+    p_vendor_id: vendorId,
+  });
+  if (error) {
+    if (["akses_ditolak", "vendor_tidak_valid", "vendor_sudah_memiliki_usulan"].includes(error.message)) {
+      throw new VendorError(error.message);
+    }
+    throw new Error(`ajukan_aktivasi_vendor failed: ${error.code}`);
+  }
+  return data as { approval_id: string; status: "pending" };
 }
 
 export async function ajukanArsipVendor(session: AuthSession, vendorId: string) {

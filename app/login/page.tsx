@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Brand } from "@/components/ui/brand";
+import { quickLoginAllowed } from "@/lib/auth/quick-login";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "Masuk | Pemkot-AI" };
@@ -25,7 +26,7 @@ export default async function LoginPage({
           </p>
           <LoginForm
             next={typeof next === "string" ? next : undefined}
-            quickLoginVisible={process.env.NODE_ENV === "development"}
+            quickLoginVisible={quickLoginAllowed()}
             quickLoginEnabled={Boolean(process.env.DEMO_QUICK_LOGIN_PASSWORD)}
           />
         </div>

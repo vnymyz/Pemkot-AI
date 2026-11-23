@@ -10,7 +10,8 @@ values
   ('generated-files', 'generated-files', false, 20971520,
    array[
      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-     'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+     'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+     'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
    ])
 on conflict (id) do update
   set public = excluded.public,

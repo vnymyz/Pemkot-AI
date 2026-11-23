@@ -176,12 +176,17 @@ create table if not exists vendor_ratings (
 create table if not exists generated_files (
   id           uuid primary key default gen_random_uuid(),
   nama         text not null,
-  jenis        text not null check (jenis in ('xlsx', 'pptx')),
+  jenis        text not null check (jenis in ('xlsx', 'pptx', 'docx')),
   file_path    text not null,
   dibuat_oleh  uuid references profiles (id) on delete set null,
   sumber_data  text,
   created_at   timestamptz not null default now()
 );
+
+-- Word files were added after the first version, so the check is rebuilt on existing databases.
+alter table generated_files drop constraint if exists generated_files_jenis_check;
+alter table generated_files add constraint generated_files_jenis_check
+  check (jenis in ('xlsx', 'pptx', 'docx'));
 
 create table if not exists audit_logs (
   id          uuid primary key default gen_random_uuid(),
@@ -232,6 +237,9 @@ create index if not exists projects_opd_status on projects (opd_id, status);
 create index if not exists approvals_status on approvals (status, created_at desc);
 create index if not exists audit_logs_created on audit_logs (created_at desc);
 create index if not exists chat_sessions_profile on chat_sessions (profile_id, updated_at desc);
+
+-- One document per type for each vendor. A new upload replaces the old one.
+create unique index if not exists vendor_documents_one_per_type on vendor_documents (vendor_id, jenis);
 
 -- A vendor cannot hold two live assignments on the same project.
 create unique index if not exists project_assignments_one_live
@@ -978,11 +986,13 @@ begin
     if not found then
       raise exception 'vendor_tidak_ditemukan';
     end if;
-    if current_status <> 'draft' then
+    -- A rejected vendor may fix its data and go back to draft (section 10.4).
+    if current_status not in ('draft', 'ditolak') then
       raise exception 'bukan_draft';
     end if;
     update vendors
-       set nama = p_data->>'nama', npwp = p_data->>'npwp', alamat = p_data->>'alamat',
+       set status = 'draft',
+           nama = p_data->>'nama', npwp = p_data->>'npwp', alamat = p_data->>'alamat',
            wilayah = p_data->>'wilayah', kontak = p_data->>'kontak', tipe = p_data->>'tipe',
            kapasitas_proyek = coalesce((p_data->>'kapasitas_proyek')::int, kapasitas_proyek),
            total_tenaga = coalesce((p_data->>'total_tenaga')::int, total_tenaga),
@@ -1112,6 +1122,134 @@ begin
           jsonb_build_object('approval_id', approval_id, 'nama', target.nama));
 
   return jsonb_build_object('approval_id', approval_id, 'status', 'pending');
+end $$;
+
+-- ---------------------------------------------------------------------------
+-- Vendor verification and activation (section 4.2).
+-- draft -> verifikasi (documents complete) -> aktif (Kepala Dinas approves).
+-- ---------------------------------------------------------------------------
+
+-- Required documents before a draft vendor can be sent for verification.
+-- putuskan_dokumen_vendor: an admin settles a document the AI could not judge.
+create or replace function putuskan_dokumen_vendor(
+  p_actor uuid, p_document_id uuid, p_lengkap boolean, p_catatan text default null
+)
+returns jsonb
+language plpgsql
+set search_path = public, pg_temp
+as $$
+declare
+  actor profiles%rowtype;
+  doc vendor_documents%rowtype;
+  v_status text;
+begin
+  select * into actor from profiles where id = p_actor;
+  if not found or actor.role <> 'admin_pengadaan' then
+    raise exception 'akses_ditolak';
+  end if;
+
+  select * into doc from vendor_documents where id = p_document_id for update;
+  if not found then
+    raise exception 'dokumen_tidak_ditemukan';
+  end if;
+  select status into v_status from vendors where id = doc.vendor_id;
+  if v_status not in ('draft', 'ditolak') then
+    raise exception 'bukan_draft';
+  end if;
+
+  update vendor_documents
+     set status_cek = case when p_lengkap then 'lengkap' else 'tidak_cocok' end,
+         hasil_cek_ai = coalesce(hasil_cek_ai, '{}'::jsonb)
+                        || jsonb_build_object('diputuskan_manual', true, 'catatan_admin', p_catatan)
+   where id = doc.id;
+
+  insert into audit_logs (actor_id, aksi, target, detail)
+  values (p_actor, 'dokumen_vendor_diputuskan', doc.id::text,
+          jsonb_build_object('vendor_id', doc.vendor_id, 'jenis', doc.jenis, 'lengkap', p_lengkap));
+  return jsonb_build_object('status_cek', case when p_lengkap then 'lengkap' else 'tidak_cocok' end);
+end $$;
+
+-- kirim_verifikasi_vendor: moves a complete draft to verification.
+create or replace function kirim_verifikasi_vendor(p_actor uuid, p_vendor_id uuid)
+returns jsonb
+language plpgsql
+set search_path = public, pg_temp
+as $$
+declare
+  actor profiles%rowtype;
+  target vendors%rowtype;
+  v_kurang text[];
+begin
+  select * into actor from profiles where id = p_actor;
+  if not found or actor.role not in ('admin_pengadaan', 'vendor') then
+    raise exception 'akses_ditolak';
+  end if;
+  if actor.role = 'vendor' and p_vendor_id is distinct from actor.vendor_id then
+    raise exception 'akses_ditolak';
+  end if;
+
+  select * into target from vendors where id = p_vendor_id for update;
+  if not found then
+    raise exception 'vendor_tidak_ditemukan';
+  end if;
+  if target.status <> 'draft' then
+    raise exception 'bukan_draft';
+  end if;
+  if not exists (select 1 from vendor_services where vendor_id = target.id) then
+    raise exception 'layanan_kosong';
+  end if;
+
+  select array_agg(j.jenis order by j.jenis) into v_kurang
+    from unnest(array['Akta', 'NIB', 'NPWP']) as j(jenis)
+   where not exists (
+     select 1 from vendor_documents d
+      where d.vendor_id = target.id and d.jenis = j.jenis and d.status_cek = 'lengkap');
+  if v_kurang is not null then
+    raise exception 'dokumen_belum_lengkap' using detail = array_to_string(v_kurang, ', ');
+  end if;
+
+  update vendors set status = 'verifikasi', updated_at = now() where id = target.id;
+  insert into audit_logs (actor_id, aksi, target, detail)
+  values (p_actor, 'vendor_dikirim_verifikasi', target.id::text, jsonb_build_object('nama', target.nama));
+  return jsonb_build_object('status', 'verifikasi');
+end $$;
+
+-- ajukan_aktivasi_vendor: asks the Kepala Dinas to activate a vendor in verification.
+create or replace function ajukan_aktivasi_vendor(p_actor uuid, p_vendor_id uuid)
+returns jsonb
+language plpgsql
+set search_path = public, pg_temp
+as $$
+declare
+  actor profiles%rowtype;
+  target vendors%rowtype;
+  v_approval_id uuid;
+begin
+  select * into actor from profiles where id = p_actor;
+  if not found or actor.role <> 'admin_pengadaan' then
+    raise exception 'akses_ditolak';
+  end if;
+
+  select * into target from vendors where id = p_vendor_id for update;
+  if not found or target.status <> 'verifikasi' then
+    raise exception 'vendor_tidak_valid';
+  end if;
+  if exists (
+    select 1 from approvals
+     where jenis in ('vendor_activation', 'vendor_update', 'vendor_archive')
+       and status = 'pending' and payload->>'vendor_id' = target.id::text
+  ) then
+    raise exception 'vendor_sudah_memiliki_usulan';
+  end if;
+
+  insert into approvals (jenis, payload, status, diusulkan_oleh)
+  values ('vendor_activation', jsonb_build_object('vendor_id', target.id), 'pending', p_actor)
+  returning id into v_approval_id;
+
+  insert into audit_logs (actor_id, aksi, target, detail)
+  values (p_actor, 'vendor_aktivasi_diusulkan', target.id::text,
+          jsonb_build_object('approval_id', v_approval_id, 'nama', target.nama));
+  return jsonb_build_object('approval_id', v_approval_id, 'status', 'pending');
 end $$;
 
 -- ---------------------------------------------------------------------------
@@ -1300,3 +1438,9 @@ grant execute on function simpan_draft_vendor(uuid, uuid, jsonb) to service_role
 grant execute on function ajukan_perubahan_vendor(uuid, uuid, jsonb) to service_role;
 grant execute on function ajukan_arsip_vendor(uuid, uuid) to service_role;
 grant execute on function ajukan_penugasan(uuid, uuid, uuid, int, date, date, numeric) to service_role;
+revoke execute on function putuskan_dokumen_vendor(uuid, uuid, boolean, text) from public, anon, authenticated;
+revoke execute on function kirim_verifikasi_vendor(uuid, uuid) from public, anon, authenticated;
+revoke execute on function ajukan_aktivasi_vendor(uuid, uuid) from public, anon, authenticated;
+grant execute on function putuskan_dokumen_vendor(uuid, uuid, boolean, text) to service_role;
+grant execute on function kirim_verifikasi_vendor(uuid, uuid) to service_role;
+grant execute on function ajukan_aktivasi_vendor(uuid, uuid) to service_role;

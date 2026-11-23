@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useActionState } from "react";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { toast } from "@/components/ui/toast";
 import { putuskan, type PersetujuanState } from "./actions";
 
 const initial: PersetujuanState = { error: null, success: null };
@@ -13,6 +14,11 @@ export function PersetujuanForm({ approvalId }: { approvalId: string }) {
   const formRef = useRef<HTMLFormElement>(null);
   const approveRef = useRef<HTMLButtonElement>(null);
   const rejectRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (state.success) toast.success(state.success);
+    else if (state.error) toast.error(state.error);
+  }, [state]);
 
   function confirmDecision() {
     const selected = decision;
@@ -31,7 +37,7 @@ export function PersetujuanForm({ approvalId }: { approvalId: string }) {
           name="catatan"
           maxLength={1000}
           rows={2}
-          className="mt-1 w-full rounded-md border border-line bg-surface px-3 py-2 text-table"
+          className="mt-1 w-full panel rounded-md border border-line bg-surface px-3 py-2 text-table"
         />
       </label>
       {state.error ? <p role="alert" className="mt-2 text-table text-bad">{state.error}</p> : null}

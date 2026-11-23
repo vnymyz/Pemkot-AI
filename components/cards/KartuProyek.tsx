@@ -4,12 +4,12 @@ import { formatRupiah, formatTanggal } from "@/lib/format";
 import type { ProyekDetail, ProyekRingkas } from "@/lib/services/project-types";
 
 const detailLink =
-  "inline-flex min-h-11 items-center rounded-md border border-line bg-surface px-3 text-table font-medium text-primary hover:bg-primary-soft";
+  "inline-flex min-h-11 items-center panel rounded-md border border-line bg-surface px-3 text-table font-medium text-primary hover:bg-primary-soft";
 
 export function KartuDaftarProyek({ data }: { data: { jumlah: number; proyek: ProyekRingkas[] } }) {
   if (data.proyek.length === 0) {
     return (
-      <p className="rounded-md border border-line bg-surface p-4 text-table text-muted">
+      <p className="panel rounded-md border border-line bg-surface p-4 text-table text-muted">
         Belum ada proyek yang sesuai. Coba ubah kata kunci, status, atau periode.
       </p>
     );
@@ -17,7 +17,7 @@ export function KartuDaftarProyek({ data }: { data: { jumlah: number; proyek: Pr
   return (
     <div className="grid gap-3 lg:grid-cols-2">
       {data.proyek.map((item) => (
-        <article key={item.id} className="flex flex-col rounded-md border border-line bg-surface p-4">
+        <article key={item.id} className="flex flex-col panel rounded-md border border-line bg-surface p-4">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <h3 className="text-card font-semibold text-navy">{item.judul}</h3>
             <ProjectStatusBadge status={item.status} />
@@ -67,7 +67,7 @@ export function KartuDaftarProyek({ data }: { data: { jumlah: number; proyek: Pr
 export function KartuDetailProyek({ data }: { data: { proyek: ProyekDetail } }) {
   const { proyek } = data;
   return (
-    <article className="rounded-md border border-line bg-surface p-4">
+    <article className="panel rounded-md border border-line bg-surface p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h3 className="text-card font-semibold text-navy">{proyek.judul}</h3>

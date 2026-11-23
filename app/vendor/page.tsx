@@ -23,7 +23,7 @@ const STATUS_LABEL: Record<string, string> = {
   diarsipkan: "Diarsipkan",
 };
 
-const field = "h-11 w-full rounded-md border border-line bg-surface px-3 text-table text-text";
+const field = "h-11 w-full panel rounded-md border border-line bg-surface px-3 text-table text-text";
 const one = (value: string | string[] | undefined) => (typeof value === "string" ? value.slice(0, 100) : "");
 
 export default async function VendorPage({
@@ -87,7 +87,7 @@ export default async function VendorPage({
         </div>
       ) : null}
 
-      <LiveSearchForm action="/vendor" className="mt-4 grid gap-3 rounded-md border border-line bg-surface p-3 sm:grid-cols-2 lg:grid-cols-5">
+      <LiveSearchForm action="/vendor" className="mt-4 grid gap-3 panel rounded-md border border-line bg-surface p-3 sm:grid-cols-2 lg:grid-cols-5">
         <label className="lg:col-span-2">
           <span className="sr-only">Cari vendor atau layanan</span>
           <input name="q" defaultValue={q} placeholder="Cari vendor, barang, atau jasa" className={field} />
@@ -138,11 +138,11 @@ export default async function VendorPage({
       </LiveSearchForm>
 
       {vendors.length === 0 ? (
-        <p className="mt-4 rounded-md border border-line bg-surface p-6 text-center text-table text-muted">
+        <p className="mt-4 panel rounded-md border border-line bg-surface p-6 text-center text-table text-muted">
           Belum ada vendor yang sesuai. Coba ubah kata kunci atau filter.
         </p>
       ) : (
-        <div className="mt-4 overflow-hidden rounded-md border border-line bg-surface">
+        <div className="mt-4 overflow-hidden panel rounded-md border border-line bg-surface">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1120px] border-collapse text-left text-table">
             <thead className="bg-primary-soft font-semibold">

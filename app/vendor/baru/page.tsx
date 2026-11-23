@@ -12,7 +12,7 @@ export default async function TambahVendorPage() {
   if (state.status !== "ready") return null;
   if (state.session.role !== "admin_pengadaan") {
     return (
-      <p className="rounded-md border border-line bg-surface p-4 text-table text-muted">
+      <p className="panel rounded-md border border-line bg-surface p-4 text-table text-muted">
         Halaman ini hanya dapat digunakan Admin Pengadaan.
       </p>
     );

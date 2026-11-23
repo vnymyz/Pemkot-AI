@@ -12,7 +12,7 @@ import { PRIORITAS_LABEL, PROJECT_STATUS, PROJECT_STATUS_LABEL } from "@/lib/ser
 
 export const metadata: Metadata = { title: "Proyek | Pemkot-AI" };
 
-const field = "h-11 w-full rounded-md border border-line bg-surface px-3 text-table text-text";
+const field = "h-11 w-full panel rounded-md border border-line bg-surface px-3 text-table text-text";
 const one = (value: string | string[] | undefined) => (typeof value === "string" ? value.slice(0, 120) : "");
 
 export default async function ProyekPage({
@@ -52,7 +52,7 @@ export default async function ProyekPage({
         {session.role === "pic_proyek" && session.opdNama ? ` di ${session.opdNama}` : ""}.
       </p>
 
-      <LiveSearchForm action="/proyek" className="mt-4 grid items-center gap-3 rounded-md border border-line bg-surface p-3 sm:grid-cols-2 lg:grid-cols-5">
+      <LiveSearchForm action="/proyek" className="mt-4 grid items-center gap-3 panel rounded-md border border-line bg-surface p-3 sm:grid-cols-2 lg:grid-cols-5">
         <label className="lg:col-span-2">
           <span className="sr-only">Cari judul atau nomor proyek</span>
           <input name="q" defaultValue={q} placeholder="Cari judul atau nomor proyek" className={field} />
@@ -102,11 +102,11 @@ export default async function ProyekPage({
       </LiveSearchForm>
 
       {proyek.length === 0 ? (
-        <p className="mt-4 rounded-md border border-line bg-surface p-6 text-center text-table text-muted">
+        <p className="mt-4 panel rounded-md border border-line bg-surface p-6 text-center text-table text-muted">
           {isVendor ? "Belum ada proyek yang ditugaskan kepada vendor ini." : "Belum ada proyek yang sesuai. Coba ubah kata kunci atau filter."}
         </p>
       ) : (
-        <div className="mt-4 overflow-hidden rounded-md border border-line bg-surface">
+        <div className="mt-4 overflow-hidden panel rounded-md border border-line bg-surface">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1120px] border-collapse text-left text-table">
               <thead className="bg-primary-soft font-semibold">

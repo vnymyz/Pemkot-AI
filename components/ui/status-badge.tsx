@@ -86,6 +86,21 @@ export function ReadyBadge({ ready }: { ready: boolean }) {
   );
 }
 
+const DOC: Record<string, Style> = {
+  belum: { label: "Belum diperiksa", icon: Clock, className: "border-line bg-surface text-muted" },
+  lengkap: { label: "Lengkap", icon: CircleCheck, className: "border-ok bg-surface text-ok" },
+  tidak_cocok: { label: "Tidak cocok", icon: CircleX, className: "border-bad bg-surface text-bad" },
+  perlu_diperiksa_manual: {
+    label: "Perlu diperiksa manual",
+    icon: TriangleAlert,
+    className: "border-warn bg-surface text-warn",
+  },
+};
+
+export function DocStatusBadge({ status }: { status: string }) {
+  return <Badge style={DOC[status] ?? { label: status, icon: Info, className: "border-line bg-surface text-muted" }} />;
+}
+
 export function NoHistoryBadge() {
   return <Badge style={{ label: "Belum ada riwayat", icon: Info, className: "border-line bg-surface text-muted" }} />;
 }

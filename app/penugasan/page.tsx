@@ -12,7 +12,7 @@ import { ASSIGNMENT_STATUS, ASSIGNMENT_STATUS_LABEL } from "@/lib/services/proje
 
 export const metadata: Metadata = { title: "Penugasan | Pemkot-AI" };
 
-const field = "h-11 w-full rounded-md border border-line bg-surface px-3 text-table text-text";
+const field = "h-11 w-full panel rounded-md border border-line bg-surface px-3 text-table text-text";
 const one = (value: string | string[] | undefined) => (typeof value === "string" ? value.slice(0, 120) : "");
 
 export default async function PenugasanPage({
@@ -42,7 +42,7 @@ export default async function PenugasanPage({
       <h1 className="text-page font-semibold text-navy">{isVendor ? "Penugasan Saya" : "Penugasan"}</h1>
       <p className="mt-1 text-table text-muted">{rows.length} penugasan ditemukan.</p>
 
-      <LiveSearchForm action="/penugasan" className="mt-4 grid gap-3 rounded-md border border-line bg-surface p-3 sm:grid-cols-[1fr_220px_auto]">
+      <LiveSearchForm action="/penugasan" className="mt-4 grid gap-3 panel rounded-md border border-line bg-surface p-3 sm:grid-cols-[1fr_220px_auto]">
         <label>
           <span className="sr-only">Cari proyek atau vendor</span>
           <input name="q" defaultValue={q} placeholder={isVendor ? "Cari proyek" : "Cari proyek atau vendor"} className={field} />
@@ -69,11 +69,11 @@ export default async function PenugasanPage({
       </LiveSearchForm>
 
       {rows.length === 0 ? (
-        <p className="mt-4 rounded-md border border-line bg-surface p-6 text-center text-table text-muted">
+        <p className="mt-4 panel rounded-md border border-line bg-surface p-6 text-center text-table text-muted">
           {isVendor ? "Belum ada penugasan untuk vendor ini." : "Belum ada penugasan yang sesuai. Coba ubah kata kunci atau filter."}
         </p>
       ) : (
-        <div className="mt-4 overflow-hidden rounded-md border border-line bg-surface">
+        <div className="mt-4 overflow-hidden panel rounded-md border border-line bg-surface">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1040px] border-collapse text-left text-table">
               <thead className="bg-primary-soft font-semibold">

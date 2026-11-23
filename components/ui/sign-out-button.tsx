@@ -15,7 +15,7 @@ const TONE = {
 
 function SubmitButton({ fullWidth, compact, tone }: { fullWidth: boolean; compact: boolean; tone: keyof typeof TONE }) {
   const { pending } = useFormStatus();
-  const label = pending ? "Memproses" : "Keluar";
+  const label = "Keluar";
   return (
     <>
       {pending ? <ProgressBar /> : null}

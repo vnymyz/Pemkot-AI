@@ -92,7 +92,8 @@ export async function POST(request: Request) {
       forceRanking && stepNumber === 0
         ? { toolChoice: { type: "tool" as const, toolName: "rekomendasikan_vendor" } }
         : {},
-    stopWhen: isStepCount(6),
+    // A document task can need project, ranking, Excel, summary, and PowerPoint in one turn.
+    stopWhen: isStepCount(10),
     temperature: 0.2,
     maxRetries: 0, // the model chain already moves to the next model
   });

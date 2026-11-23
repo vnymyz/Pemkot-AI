@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
+import { Spinner } from "./spinner";
 
 export function ConfirmationDialog({
   open,
@@ -49,7 +50,7 @@ export function ConfirmationDialog({
         event.preventDefault();
         if (!pending) onCancel();
       }}
-      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-md border border-line bg-surface p-0 text-text shadow-xl backdrop:bg-navy/50"
+      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-md border border-line bg-surface p-0 text-text shadow-[var(--shadow-overlay)] backdrop:bg-navy/50"
     >
       <div className="p-5">
         <h2 id={`${id}-title`} className="text-card font-semibold text-navy">{title}</h2>
@@ -69,11 +70,12 @@ export function ConfirmationDialog({
             type="button"
             disabled={pending}
             onClick={onConfirm}
-            className={`inline-flex min-h-11 items-center rounded-md px-4 text-table font-medium text-surface disabled:cursor-not-allowed ${
+            className={`inline-flex min-h-11 items-center gap-2 rounded-md px-4 text-table font-medium text-surface transition-colors disabled:cursor-not-allowed ${
               danger ? "bg-bad hover:bg-bad/90" : "bg-primary hover:bg-navy"
             }`}
           >
-            {pending ? "Memproses..." : confirmLabel}
+            {pending ? <Spinner /> : null}
+            {confirmLabel}
           </button>
         </div>
       </div>

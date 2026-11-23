@@ -5,12 +5,12 @@ import { formatRentangHarga, formatTanggal, TIPE_LABEL } from "@/lib/format";
 import type { VendorDetail, VendorRingkas } from "@/lib/services/vendor-types";
 
 const detailLink =
-  "inline-flex min-h-11 items-center rounded-md border border-line bg-surface px-3 text-table font-medium text-primary hover:bg-primary-soft";
+  "inline-flex min-h-11 items-center panel rounded-md border border-line bg-surface px-3 text-table font-medium text-primary hover:bg-primary-soft";
 
 export function KartuDaftarVendor({ data }: { data: { jumlah: number; vendor: VendorRingkas[] } }) {
   if (data.vendor.length === 0) {
     return (
-      <p className="rounded-md border border-line bg-surface p-4 text-table text-muted">
+      <p className="panel rounded-md border border-line bg-surface p-4 text-table text-muted">
         Belum ada vendor yang sesuai. Coba ubah kata kunci, kategori, atau wilayah.
       </p>
     );
@@ -18,7 +18,7 @@ export function KartuDaftarVendor({ data }: { data: { jumlah: number; vendor: Ve
   return (
     <div className="grid gap-3 lg:grid-cols-2">
       {data.vendor.map((vendor) => (
-        <article key={vendor.id} className="flex flex-col rounded-md border border-line bg-surface p-4">
+        <article key={vendor.id} className="flex flex-col panel rounded-md border border-line bg-surface p-4">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <h3 className="text-card font-semibold text-navy">{vendor.nama}</h3>
             <VendorStatusBadge status={vendor.status} />
@@ -56,7 +56,7 @@ export function KartuDaftarVendor({ data }: { data: { jumlah: number; vendor: Ve
 export function KartuProfilVendor({ data }: { data: { vendor: VendorDetail; kandidat_lain?: string[] } }) {
   const { vendor } = data;
   return (
-    <article className="rounded-md border border-line bg-surface p-4">
+    <article className="panel rounded-md border border-line bg-surface p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h3 className="text-card font-semibold text-navy">{vendor.nama}</h3>

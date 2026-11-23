@@ -23,7 +23,7 @@ export default async function DashboardPage() {
       <h1 className="text-page font-semibold text-navy">Dashboard</h1>
       <p className="mt-1 text-table text-muted">Selamat datang, Bapak/Ibu {session.nama}.</p>
 
-      <section aria-labelledby="akun" className="mt-6 rounded-md border border-line bg-surface">
+      <section aria-labelledby="akun" className="mt-6 panel rounded-md border border-line bg-surface">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
           <h2 id="akun" className="text-card font-semibold">
             Informasi akun

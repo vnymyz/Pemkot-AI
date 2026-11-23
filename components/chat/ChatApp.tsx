@@ -12,6 +12,7 @@ import {
   type PointerEvent,
 } from "react";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { toast } from "@/components/ui/toast";
 import { Spinner } from "@/components/ui/spinner";
 import { ChatWindow } from "./ChatWindow";
 
@@ -146,6 +147,7 @@ export function ChatApp({ suggestions }: { suggestions: string[] }) {
       setChats((list) => list.filter((chat) => chat.id !== id));
       if (current.id === id) newChat();
       setDeleteTarget(null);
+      toast.success("Percakapan dihapus.");
     } catch {
       setDeleteError("Percakapan belum terhapus. Silakan coba lagi.");
     } finally {

@@ -19,7 +19,7 @@ export default async function PersetujuanPage({
   if (state.status !== "ready") return null;
   if (state.session.role !== "kepala_dinas") {
     return (
-      <div className="rounded-md border border-line bg-surface p-6 text-table text-muted">
+      <div className="panel rounded-md border border-line bg-surface p-6 text-table text-muted">
         Halaman ini khusus untuk Kepala Dinas.
       </div>
     );
@@ -37,13 +37,13 @@ export default async function PersetujuanPage({
       </div>
 
       {rows.length === 0 ? (
-        <p className="rounded-md border border-line bg-surface p-6 text-center text-table text-muted">
+        <p className="panel rounded-md border border-line bg-surface p-6 text-center text-table text-muted">
           Belum ada usulan yang menunggu atau sudah diputuskan.
         </p>
       ) : (
         <div className="space-y-3">
           {paged.rows.map((item) => (
-            <article key={item.id} className="rounded-md border border-line bg-surface p-4">
+            <article key={item.id} className="panel rounded-md border border-line bg-surface p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   {item.jenis === "project_assignment" ? (

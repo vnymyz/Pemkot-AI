@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { RouteProgress } from "@/components/ui/route-progress";
+import { Toaster } from "@/components/ui/toast";
 import { mono, sans } from "@/lib/fonts";
 import "./globals.css";
 
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <RouteProgress />
         {children}
+        <Toaster />
       </body>
     </html>
   );

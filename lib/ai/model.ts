@@ -90,7 +90,10 @@ const FIRST_RESPONSE_TIMEOUT_MS = Number(process.env.AI_FIRST_RESPONSE_TIMEOUT_M
 type CallOptions = Parameters<LanguageModelV4["doGenerate"]>[0];
 
 /** A LanguageModel that tries each candidate in order until one accepts the request. */
-export function fallbackModel(candidates: ModelCandidate[]): LanguageModelV4 {
+export function fallbackModel(
+  candidates: ModelCandidate[],
+  firstResponseTimeoutMs: number = FIRST_RESPONSE_TIMEOUT_MS,
+): LanguageModelV4 {
   if (candidates.length === 0) throw new Error("no_ai_provider_configured");
 
   async function attempt<T>(
@@ -110,7 +113,7 @@ export function fallbackModel(candidates: ModelCandidate[]): LanguageModelV4 {
         timer = setTimeout(() => {
           controller.abort();
           reject(new ModelTimeoutError());
-        }, FIRST_RESPONSE_TIMEOUT_MS);
+        }, firstResponseTimeoutMs);
       });
 
       try {
@@ -150,7 +153,7 @@ export const chatModel = () => fallbackModel([...geminiCandidates(), ...groqCand
  * Gemini only: Groq's documentation does not confirm image input for its production models.
  * When this throws or fails, the caller must mark the document "perlu diperiksa manual".
  */
-export const visionModel = () => fallbackModel(geminiCandidates());
+export const visionModel = () => fallbackModel(geminiCandidates(), 20_000);
 
 /** Short machine-readable reason for logs. Users always see the calm offline message. */
 export function describeAiError(error: unknown): string {

@@ -6,16 +6,21 @@ import type { ReactNode } from "react";
 import { FormDaftarVendor } from "@/components/cards/FormDaftarVendor";
 import { Pagination } from "@/components/ui/pagination";
 import { CertStatusBadge, NoHistoryBadge, VendorStatusBadge } from "@/components/ui/status-badge";
+import { AjukanAktivasiButton } from "@/components/vendor/AjukanAktivasiButton";
+import { DokumenVendor } from "@/components/vendor/DokumenVendor";
+import { KirimVerifikasiButton } from "@/components/vendor/KirimVerifikasiButton";
 import { getSessionState } from "@/lib/auth/session";
 import { formatRentangHarga, formatTanggal, TIPE_LABEL } from "@/lib/format";
 import { paginate } from "@/lib/pagination";
-import { detailVendor, formDaftarVendor } from "@/lib/services/vendor";
+import { detailVendor, daftarVendorDenganUsulanPending, formDaftarVendor } from "@/lib/services/vendor";
+import { daftarDokumenVendor } from "@/lib/services/vendor-document";
+import { DOKUMEN_WAJIB } from "@/lib/vendor-document-schema";
 
 export const metadata: Metadata = { title: "Detail Vendor | Pemkot-AI" };
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-md border border-line bg-surface">
+    <section className="panel rounded-md border border-line bg-surface">
       <h2 className="border-b border-line px-4 py-3 text-card font-semibold">{title}</h2>
       {children}
     </section>
@@ -43,10 +48,20 @@ export default async function VendorDetailPage({
   const layanan = paginate(vendor.layanan, query.hal_layanan, DETAIL_PAGE_SIZE);
   const sertifikat = paginate(vendor.sertifikat, query.hal_sertifikat, DETAIL_PAGE_SIZE);
 
-  const canEdit =
-    (vendor.status === "draft" && (state.session.role === "admin_pengadaan" || state.session.role === "vendor")) ||
-    (vendor.status === "aktif" && state.session.role === "admin_pengadaan");
+  const role = state.session.role;
+  const isAdmin = role === "admin_pengadaan";
+  const ownsOrAdmin = isAdmin || role === "vendor";
+  // A rejected vendor may fix its data. Saving returns it to draft.
+  const inDraft = vendor.status === "draft";
+  const canEdit = ((inDraft || vendor.status === "ditolak") && ownsOrAdmin) || (vendor.status === "aktif" && isAdmin);
   const draftForm = canEdit ? await formDaftarVendor(state.session, {}, vendor.id) : null;
+
+  const documents = await daftarDokumenVendor(state.session, vendor.id);
+  const missingDocuments = DOKUMEN_WAJIB.filter(
+    (jenis) => !documents.some((item) => item.jenis === jenis && item.status_cek === "lengkap"),
+  );
+  const pendingActivation =
+    isAdmin && vendor.status === "verifikasi" ? (await daftarVendorDenganUsulanPending(state.session, [vendor.id])).has(vendor.id) : false;
 
   const profile: [string, string][] = [
     ["NPWP", vendor.npwp ?? "Tidak ada data"],
@@ -123,6 +138,28 @@ export default async function VendorDetailPage({
       </div>
 
       {draftForm ? <FormDaftarVendor key={vendor.diperbarui} data={draftForm} /> : null}
+
+      {inDraft && ownsOrAdmin ? (
+        <KirimVerifikasiButton id={vendor.id} name={vendor.nama} missing={[...missingDocuments]} />
+      ) : null}
+      {vendor.status === "verifikasi" && isAdmin ? (
+        pendingActivation ? (
+          <p className="text-table font-medium text-warn">Usulan aktivasi menunggu keputusan Kepala Dinas.</p>
+        ) : (
+          <AjukanAktivasiButton id={vendor.id} name={vendor.nama} />
+        )
+      ) : null}
+      {vendor.status === "verifikasi" && !isAdmin ? (
+        <p className="text-table text-muted">Vendor sedang dalam verifikasi. Data dan dokumen tidak dapat diubah.</p>
+      ) : null}
+
+      <DokumenVendor
+        vendorId={vendor.id}
+        documents={documents}
+        canManage={inDraft && ownsOrAdmin}
+        isAdmin={isAdmin}
+        query={query}
+      />
 
       <Section title="Katalog barang dan jasa">
         <div className="overflow-x-auto">

@@ -19,7 +19,7 @@ const td = "px-3 py-2";
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-md border border-line bg-surface">
+    <section className="panel rounded-md border border-line bg-surface">
       <h2 className="border-b border-line px-4 py-3 text-card font-semibold">{title}</h2>
       {children}
     </section>

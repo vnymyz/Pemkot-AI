@@ -5,6 +5,7 @@ import { Bot } from "lucide-react";
 import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 import { FormDaftarVendor } from "@/components/cards/FormDaftarVendor";
+import { KartuBerkas } from "@/components/cards/KartuBerkas";
 import { KartuDaftarProyek, KartuDetailProyek } from "@/components/cards/KartuProyek";
 import { KartuKetersediaan, KartuRekomendasi, KartuUsulanPenugasan } from "@/components/cards/KartuRekomendasi";
 import { KartuDaftarVendor, KartuProfilVendor } from "@/components/cards/KartuVendor";
@@ -24,6 +25,10 @@ const PENDING: Record<string, string> = {
   "tool-rekomendasikan_vendor": "Menghitung vendor yang ready",
   "tool-cek_ketersediaan_vendor": "Mengecek ketersediaan vendor",
   "tool-ajukan_penugasan": "Menyiapkan konfirmasi usulan",
+  "tool-buat_excel": "Membuat berkas Excel",
+  "tool-buat_powerpoint": "Membuat berkas PowerPoint",
+  "tool-buat_word": "Membuat berkas Word",
+  "tool-ringkas_data": "Menyusun ringkasan data",
 };
 
 export function AssistantRow({ children }: { children: ReactNode }) {
@@ -93,6 +98,10 @@ export function MessageBubble({ message }: { message: UIMessage }) {
         return <KartuKetersediaan key={key} data={output as never} />;
       case "tool-ajukan_penugasan":
         return <KartuUsulanPenugasan key={key} data={output as never} />;
+      case "tool-buat_excel":
+      case "tool-buat_powerpoint":
+      case "tool-buat_word":
+        return <KartuBerkas key={key} data={output as never} />;
       default:
         return null;
     }

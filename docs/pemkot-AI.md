@@ -1393,7 +1393,7 @@ Pemkot-AI dipakai pejabat dan staf pengadaan untuk membaca data dan mengambil ke
 | Warna | Biru cerah, aksen oranye | Biru tua dan netral, warna lain hanya untuk status |
 | Font | Unbounded (judul lebar) + Be Vietnam Pro | IBM Plex Sans + IBM Plex Mono |
 | Maskot dan emoji | Ada | **Tidak ada**, diganti logo pemkot |
-| Animasi | Banyak (mengetik, memudar, scroll halus) | Minimal (transisi singkat saja) |
+| Animasi | Banyak (mengetik, memudar, scroll halus) | **Bermakna dan singkat**: bayangan berlapis (kesan berkas di atas meja), tab emas pada menu aktif, transisi 150 sampai 250 ms, scroll halus, toast, skeleton. Mati penuh bila pengguna memilih kurangi gerakan |
 | Isi utama | Kartu dan percakapan | **Tabel, kartu data, dan rekomendasi** |
 | Bahasa | "Kak", santai | "Bapak/Ibu", baku dan ringkas |
 
@@ -1602,7 +1602,9 @@ flowchart TB
 | Keadaan | Tampilan |
 |---|---|
 | Kosong | Kalimat singkat dan petunjuk, misalnya "Belum ada vendor yang sesuai. Coba ubah periode atau kategori." |
-| Memuat | Bar tipis `gold` di atas halaman dan ikon putar kecil dengan teks "Memuat halaman". Skeleton abu pada tabel atau kartu, bukan animasi besar |
+| Memuat | Bar tipis `gold` di atas halaman. Saat pindah halaman, sidebar dan header tetap tampil dan isi halaman diganti skeleton abu berbentuk tabel atau kartu (`loading.tsx` per bagian). Tombol yang sedang diproses menampilkan ikon putar dan tetap memakai namanya sendiri, bukan teks "Memproses" |
+| Toast | Setiap aksi yang mengubah data (usulan, keputusan, unggah, hapus, berkas dibuat) menampilkan toast kanan bawah: ikon dan kata ("Berhasil", "Gagal", "Info"), teks memakai kata kerja yang sama dengan tombolnya, tertutup sendiri setelah 5 detik (galat 8 detik), berhenti saat disorot, maksimal 3. Galat di dalam dialog tetap tampil di dalam dialog agar bisa dicoba lagi |
+| Kedalaman | Dua token bayangan dari navy beraloi rendah: `--shadow-raised` (tabel dan kartu) dan `--shadow-overlay` (dialog dan toast). Tidak ada warna baru. Menu aktif memakai tab emas 3 px di tepi kiri |
 | Gagal | Kotak `bad` ringan dengan pesan jelas dan tombol coba lagi |
 | Asisten offline | "Asisten sedang tidak tersedia. Silakan coba lagi sebentar lagi." dengan tombol coba lagi |
 
@@ -1634,7 +1636,7 @@ flowchart TB
 ### 12A.9 Yang dihindari
 - Warna oranye menyala, gradien, glow, dan efek kaca.
 - Emoji dan ilustrasi lucu.
-- Animasi mengetik, memudar, dan scroll halus berlebihan.
+- Animasi mengetik, animasi masuk bertahap pada setiap kartu, dan efek yang bergerak tanpa tindakan pengguna.
 - Teks di bawah 13 px atau teks abu terang di atas putih.
 - Status yang hanya dibedakan lewat warna.
 

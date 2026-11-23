@@ -27,7 +27,7 @@ const INTERNAL_NAV: NavItem[] = [
   { key: "vendor", label: "Vendor", href: "/vendor" },
   { key: "proyek", label: "Proyek", href: "/proyek" },
   { key: "penugasan", label: "Penugasan", href: "/penugasan" },
-  { key: "berkas", label: "Berkas" },
+  { key: "berkas", label: "Berkas", href: "/berkas" },
 ];
 
 const VENDOR_NAV: NavItem[] = [
@@ -35,6 +35,7 @@ const VENDOR_NAV: NavItem[] = [
   { key: "chat", label: "Asisten AI", href: "/chat" },
   { key: "vendor", label: "Data Vendor Saya", href: "/vendor" },
   { key: "penugasan", label: "Penugasan Saya", href: "/penugasan" },
+  { key: "berkas", label: "Berkas", href: "/berkas" },
 ];
 
 export function navForRole(role: Role): NavItem[] {

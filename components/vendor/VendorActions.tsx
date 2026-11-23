@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { toast } from "@/components/ui/toast";
+import { AjukanAktivasiButton } from "./AjukanAktivasiButton";
 
 export function VendorActions({
   id,
@@ -22,7 +24,7 @@ export function VendorActions({
   const [pending, setPending] = useState(false);
   const [requested, setRequested] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const canEdit = status === "draft" || status === "aktif";
+  const canEdit = status === "draft" || status === "aktif" || status === "ditolak";
   const waiting = hasPendingProposal || requested;
 
   async function requestArchive() {
@@ -41,6 +43,7 @@ export function VendorActions({
       }
       setRequested(true);
       setDialogOpen(false);
+      toast.success("Usulan arsip dibuat. Menunggu persetujuan Kepala Dinas.");
       router.refresh();
     } catch {
       setError("Usulan arsip belum dibuat. Periksa koneksi, lalu coba lagi.");
@@ -71,6 +74,7 @@ export function VendorActions({
       ) : (
         <span className="inline-flex min-h-11 items-center px-3 text-caption text-muted">Tidak dapat diedit</span>
       )}
+      {status === "verifikasi" ? <AjukanAktivasiButton id={id} name={name} /> : null}
       {status !== "diarsipkan" ? (
         <button
           type="button"
