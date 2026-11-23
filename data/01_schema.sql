@@ -1689,3 +1689,181 @@ $$;
 
 revoke execute on function analitik_dashboard(uuid) from public, anon, authenticated;
 grant execute on function analitik_dashboard(uuid) to service_role;
+
+-- ---------------------------------------------------------------------------
+-- Practice mode for the interactive tutorial.
+-- Practice rows are recognised by the name prefix "[Latihan]" and the fixed NPWP below.
+-- Seeded demo data is never touched.
+-- ---------------------------------------------------------------------------
+create table if not exists latihan_state (
+  profile_id      uuid primary key references profiles (id) on delete cascade,
+  vendor_id_asli  uuid,
+  created_at      timestamptz not null default now()
+);
+
+alter table latihan_state enable row level security;
+revoke all on latihan_state from public, anon, authenticated;
+
+create or replace function latihan_status(p_actor uuid)
+returns jsonb
+language plpgsql stable
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  a profiles%rowtype;
+  v vendors%rowtype;
+  pr projects%rowtype;
+begin
+  select * into a from profiles where id = p_actor;
+  if not found then
+    raise exception 'akses_ditolak';
+  end if;
+  select * into v from vendors where npwp = '99.999.999.9-999.999' and nama like '[Latihan]%';
+  select * into pr from projects where nomor = 'PRJ-LATIHAN-001';
+  return jsonb_build_object(
+    'ada', (v.id is not null or pr.id is not null),
+    'vendor_id', v.id,
+    'vendor_status', v.status,
+    'project_id', pr.id,
+    'penugasan_status', (select x.status from project_assignments x
+                          where x.project_id = pr.id and x.vendor_id = v.id order by x.created_at desc limit 1),
+    'usulan_id', (select ap.id from approvals ap
+                   where ap.jenis = 'project_assignment' and ap.status = 'pending'
+                     and ap.payload->>'project_id' = pr.id::text limit 1),
+    'ditautkan', exists (select 1 from latihan_state s where s.profile_id = p_actor)
+  );
+end;
+$$;
+
+create or replace function latihan_siapkan(p_actor uuid, p_tahap text)
+returns jsonb
+language plpgsql
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  a profiles%rowtype;
+  v_vendor uuid;
+  v_project uuid;
+  v_opd int;
+  v_admin uuid;
+  v_kepala uuid;
+  v_hasil jsonb;
+  v_approval uuid;
+begin
+  select * into a from profiles where id = p_actor;
+  if not found then
+    raise exception 'akses_ditolak';
+  end if;
+  if not (
+       (p_tahap = 'vendor_draft' and a.role = 'vendor')
+    or (p_tahap = 'siap_penugasan' and a.role in ('admin_pengadaan', 'pic_proyek'))
+    or (p_tahap = 'usulan_menunggu' and a.role in ('admin_pengadaan', 'kepala_dinas'))
+    or (p_tahap = 'penugasan_disetujui' and a.role in ('vendor', 'admin_pengadaan'))
+  ) then
+    raise exception 'akses_ditolak';
+  end if;
+
+  select id into v_admin from profiles where role = 'admin_pengadaan' order by created_at limit 1;
+  select id into v_kepala from profiles where role = 'kepala_dinas' order by created_at limit 1;
+
+  -- The practice vendor. Created once, reused by every tutorial.
+  select id into v_vendor from vendors where npwp = '99.999.999.9-999.999' and nama like '[Latihan]%';
+  if v_vendor is null then
+    insert into vendors (nama, npwp, alamat, wilayah, kontak, tipe, status, kapasitas_proyek, total_tenaga)
+    values ('[Latihan] CV Contoh Jaya', '99.999.999.9-999.999', 'Jl. Latihan No. 1, Kota Demo', 'Kota Demo',
+            'latihan@contoh.test', 'barang', 'draft', 2, 6)
+    returning id into v_vendor;
+    insert into vendor_services (vendor_id, category_id, nama_layanan, tipe, deskripsi, harga_min, harga_maks, satuan)
+    values (v_vendor, 5, 'Meja dan kursi rapat', 'barang', 'Contoh layanan untuk latihan', 2000000, 15000000, 'set');
+  end if;
+
+  if p_tahap = 'vendor_draft' then
+    if not exists (select 1 from latihan_state where profile_id = p_actor) then
+      insert into latihan_state (profile_id, vendor_id_asli) values (p_actor, a.vendor_id);
+      update profiles set vendor_id = v_vendor where id = p_actor;
+    end if;
+    return latihan_status(p_actor);
+  end if;
+
+  -- The vendor must be active before it can be proposed.
+  update vendors set status = 'aktif', updated_at = now() where id = v_vendor and status <> 'aktif';
+
+  -- The practice project belongs to the dinas of the demo PIC, so the PIC sees it.
+  select coalesce(a.opd_id, (select p.opd_id from profiles p where p.role = 'pic_proyek' and p.opd_id is not null limit 1))
+    into v_opd;
+  select id into v_project from projects where nomor = 'PRJ-LATIHAN-001';
+  if v_project is null then
+    insert into projects (nomor, judul, deskripsi, opd_id, status, mulai, selesai, anggaran, wilayah, prioritas)
+    values ('PRJ-LATIHAN-001', '[Latihan] Pengadaan Meja Rapat', 'Proyek contoh untuk latihan.', v_opd, 'mencari_vendor',
+            current_date + 10, current_date + 100, 45000000, 'Kota Demo', 'sedang')
+    returning id into v_project;
+    insert into project_requirements (project_id, category_id, tenaga_min, sertifikat_wajib)
+    values (v_project, 5, 2, '{}');
+  end if;
+
+  if p_tahap in ('usulan_menunggu', 'penugasan_disetujui') then
+    if not exists (select 1 from project_assignments x where x.project_id = v_project and x.vendor_id = v_vendor
+                      and x.status in ('diusulkan', 'disetujui', 'berjalan')) then
+      v_hasil := ajukan_penugasan(v_admin, v_project, v_vendor, 3, current_date + 10, current_date + 60, 30000000);
+    end if;
+  end if;
+
+  if p_tahap = 'penugasan_disetujui' then
+    select ap.id into v_approval from approvals ap
+     where ap.jenis = 'project_assignment' and ap.status = 'pending' and ap.payload->>'project_id' = v_project::text limit 1;
+    if v_approval is not null then
+      perform apply_approval(v_approval, v_kepala, true, 'Disetujui untuk latihan.');
+    end if;
+  end if;
+
+  return latihan_status(p_actor);
+end;
+$$;
+
+-- Returns the storage paths of practice documents so the server can delete the files too.
+create or replace function latihan_hapus(p_actor uuid)
+returns jsonb
+language plpgsql
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  a profiles%rowtype;
+  v_vendor uuid[];
+  v_project uuid[];
+  v_berkas jsonb;
+begin
+  select * into a from profiles where id = p_actor;
+  if not found then
+    raise exception 'akses_ditolak';
+  end if;
+
+  select coalesce(array_agg(id), '{}') into v_vendor from vendors where nama like '[Latihan]%' and npwp = '99.999.999.9-999.999';
+  select coalesce(array_agg(id), '{}') into v_project from projects where nomor = 'PRJ-LATIHAN-001';
+
+  select coalesce(jsonb_agg(d.file_path), '[]'::jsonb) into v_berkas
+    from vendor_documents d where d.vendor_id = any (v_vendor);
+
+  -- Put every swapped profile back on its own vendor first.
+  update profiles p set vendor_id = s.vendor_id_asli
+    from latihan_state s where s.profile_id = p.id;
+  delete from latihan_state;
+
+  delete from approvals ap
+   where ap.payload->>'project_id' = any (select x::text from unnest(v_project) x)
+      or ap.payload->>'vendor_id' = any (select x::text from unnest(v_vendor) x)
+      or ap.id in (select pa.approval_id from project_assignments pa
+                    where pa.vendor_id = any (v_vendor) or pa.project_id = any (v_project));
+  delete from project_assignments where vendor_id = any (v_vendor) or project_id = any (v_project);
+  delete from projects where id = any (v_project);
+  delete from vendors where id = any (v_vendor);
+
+  return jsonb_build_object('berkas', v_berkas);
+end;
+$$;
+
+revoke execute on function latihan_status(uuid) from public, anon, authenticated;
+revoke execute on function latihan_siapkan(uuid, text) from public, anon, authenticated;
+revoke execute on function latihan_hapus(uuid) from public, anon, authenticated;
+grant execute on function latihan_status(uuid) to service_role;
+grant execute on function latihan_siapkan(uuid, text) to service_role;
+grant execute on function latihan_hapus(uuid) to service_role;

@@ -11,6 +11,9 @@ drop function if exists daftar_proyek(uuid, text, text, text, date, date, boolea
 drop function if exists simpan_draft_vendor(uuid, uuid, jsonb);
 drop function if exists ringkasan_dashboard(uuid);
 drop function if exists analitik_dashboard(uuid);
+drop function if exists latihan_status(uuid);
+drop function if exists latihan_siapkan(uuid, text);
+drop function if exists latihan_hapus(uuid);
 drop function if exists ajukan_aktivasi_vendor(uuid, uuid);
 drop function if exists kirim_verifikasi_vendor(uuid, uuid);
 drop function if exists putuskan_dokumen_vendor(uuid, uuid, boolean, text);
@@ -26,7 +29,7 @@ drop function if exists cari_vendor_ready(uuid);
 drop function if exists hitung_vendor_proyek(uuid);
 
 drop table if exists
-  chat_sessions, audit_logs, generated_files,
+  latihan_state, chat_sessions, audit_logs, generated_files,
   vendor_ratings, project_assignments, approvals,
   project_requirements, projects,
   vendor_documents, vendor_unavailability, vendor_certifications, vendor_services,
