@@ -1,0 +1,135 @@
+"use client";
+
+import { CircleX, Eye, EyeOff, LogIn } from "lucide-react";
+import { useActionState, useState } from "react";
+import { ProgressBar } from "@/components/ui/route-progress";
+import { Spinner } from "@/components/ui/spinner";
+import { quickSignIn, signIn, type LoginState } from "./actions";
+
+const initialState: LoginState = { error: null };
+const inputClass =
+  "block h-11 w-full rounded-md border border-line bg-surface px-3 text-body text-text";
+
+const QUICK_ROLES = [
+  { role: "admin_pengadaan", label: "Admin Pengadaan" },
+  { role: "pic_proyek", label: "PIC Proyek" },
+  { role: "kepala_dinas", label: "Kepala Dinas" },
+  { role: "vendor", label: "Vendor" },
+] as const;
+
+export function LoginForm({
+  next,
+  quickLoginVisible,
+  quickLoginEnabled,
+}: {
+  next?: string;
+  quickLoginVisible: boolean;
+  quickLoginEnabled: boolean;
+}) {
+  const [state, action, pending] = useActionState(signIn, initialState);
+  const [quickState, quickAction, quickPending] = useActionState(quickSignIn, initialState);
+  const [showPassword, setShowPassword] = useState(false);
+
+  return (
+    <div className="space-y-5">
+      <form action={action} className="space-y-4">
+        {pending ? <ProgressBar /> : null}
+        {next ? <input type="hidden" name="next" value={next} /> : null}
+
+        {state.error ? (
+          <p role="alert" className="flex items-start gap-2 rounded-md border border-bad bg-surface p-3 text-table text-bad">
+            <CircleX aria-hidden className="mt-0.5 size-4 shrink-0" />
+            <span>{state.error}</span>
+          </p>
+        ) : null}
+
+        <div>
+          <label htmlFor="email" className="text-table font-medium">
+            Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="username"
+            required
+            placeholder="nama@contoh.test"
+            className={`mt-1 ${inputClass}`}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="password" className="text-table font-medium">
+            Kata sandi
+          </label>
+          <div className="relative mt-1">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              required
+              className={`${inputClass} pr-12`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((value) => !value)}
+              aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+              aria-pressed={showPassword}
+              title={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-md text-muted transition-colors hover:text-primary"
+            >
+              {showPassword ? <EyeOff aria-hidden className="size-5" /> : <Eye aria-hidden className="size-5" />}
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={pending}
+          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-primary px-4 font-medium text-surface transition-colors hover:bg-navy disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
+        >
+          {pending ? <Spinner /> : <LogIn aria-hidden className="size-4" />}
+          {pending ? "Memproses" : "Masuk"}
+        </button>
+      </form>
+
+      {quickLoginVisible ? (
+        <form action={quickAction} className="space-y-3 border-t border-line pt-4">
+          {quickPending ? <ProgressBar /> : null}
+          {next ? <input type="hidden" name="next" value={next} /> : null}
+          <fieldset disabled={quickPending || !quickLoginEnabled} className="space-y-3">
+            <legend className="text-table font-medium text-navy">Login cepat sebagai</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {QUICK_ROLES.map(({ role, label }) => (
+                <button
+                  key={role}
+                  type="submit"
+                  name="role"
+                  value={role}
+                  className="inline-flex min-h-11 items-center justify-center rounded-md border border-line bg-surface px-3 text-table font-medium text-primary transition-colors hover:bg-primary-soft disabled:cursor-not-allowed disabled:bg-bg disabled:text-muted"
+                >
+                  {quickPending ? "Memproses" : label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          {!quickLoginEnabled ? (
+            <p className="text-caption text-muted">
+              Tombol ini belum aktif. Pengelola perlu mengatur kata sandi bersama akun demo di konfigurasi lokal.
+            </p>
+          ) : null}
+          {quickState.error ? (
+            <p role="alert" className="flex items-start gap-2 rounded-md border border-bad bg-surface p-3 text-table text-bad">
+              <CircleX aria-hidden className="mt-0.5 size-4 shrink-0" />
+              <span>{quickState.error}</span>
+            </p>
+          ) : null}
+        </form>
+      ) : null}
+    </div>
+  );
+}

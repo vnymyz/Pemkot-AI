@@ -1,0 +1,54 @@
+# ---------------------------------------------------------------------------
+# Secrets. Never commit these.
+# ---------------------------------------------------------------------------
+# Environment files with API keys. Only the example (variable names) is allowed.
+.env
+.env.*
+!.env.local.example
+
+# Personal notes with keys and links, and demo account passwords (any folder)
+notes.md
+account-dummy.md
+
+# Internal AI agent instructions and handoff notes
+CLAUDE.md
+Copilot-Agent.md
+
+# Claude Code folder (local settings, permissions) and MCP config (can hold tokens)
+.claude/
+.mcp.json
+
+# Key and certificate files
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+service-account*.json
+credentials*.json
+secrets*.json
+
+# Supabase CLI local state and keys
+supabase/.temp/
+supabase/.branches/
+
+# ---------------------------------------------------------------------------
+# Dependencies and build output
+# ---------------------------------------------------------------------------
+node_modules
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+
+# ---------------------------------------------------------------------------
+# Logs, OS files, and local tooling
+# ---------------------------------------------------------------------------
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vercel
+.idea/
+.vscode/
