@@ -37,7 +37,7 @@ export function CardsSkeleton({ cards = 4 }: { cards?: number }) {
       <Skeleton className="mt-3 h-4 w-96 max-w-full" />
       <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: cards }, (_, index) => (
-          <div key={index} className="panel rounded-md border border-line bg-surface p-4">
+          <div key={index} className="rounded-lg border border-line bg-surface p-4">
             <Skeleton className="h-4 w-24" />
             <Skeleton className="mt-3 h-8 w-20" />
             <Skeleton className="mt-3 h-3 w-32" />

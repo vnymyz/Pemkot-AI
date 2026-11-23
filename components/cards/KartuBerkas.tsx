@@ -33,7 +33,7 @@ export function KartuBerkas({ data }: { data: { berkas: BerkasCard } }) {
   const size = berkas.jenis === "pptx" ? `${berkas.slide ?? 0} slide` : `${berkas.baris ?? 0} baris`;
 
   return (
-    <article className="flex flex-wrap items-center gap-4 panel rounded-md border border-line bg-surface p-4">
+    <article className="flex flex-wrap items-center gap-4 rounded-lg border border-line bg-surface p-4">
       <span aria-hidden className="flex size-12 shrink-0 items-center justify-center rounded-md bg-primary-soft text-primary">
         <Icon className="size-6" />
       </span>

@@ -13,7 +13,7 @@ import { TIPE_LABEL } from "@/lib/format";
 type Row = { category_id: string; nama_layanan: string; deskripsi: string; harga_min: string; harga_maks: string; satuan: string };
 type Confirmation = { kind: "save" } | { kind: "add-row" } | { kind: "delete-row"; index: number } | null;
 
-const input = "mt-1 block h-11 w-full panel rounded-md border border-line bg-surface px-3 text-table text-text";
+const input = "mt-1 block h-11 w-full rounded-lg border border-line bg-surface px-3 text-table text-text";
 const label = "block text-caption font-medium";
 const emptyRow = (): Row => ({ category_id: "", nama_layanan: "", deskripsi: "", harga_min: "", harga_maks: "", satuan: "" });
 
@@ -187,7 +187,7 @@ export function FormDaftarVendor({ data }: { data: FormDaftarOutput }) {
 
   return (
     <>
-    <form onSubmit={requestSubmit} className="panel rounded-md border border-line bg-surface p-4">
+    <form onSubmit={requestSubmit} className="rounded-lg border border-line bg-surface p-4">
       <h3 className="text-card font-semibold text-navy">
         {data.mode === "ajukan_perubahan"
           ? "Usulkan perubahan data vendor"
@@ -273,7 +273,7 @@ export function FormDaftarVendor({ data }: { data: FormDaftarOutput }) {
         <button
           type="button"
           onClick={() => setConfirmation({ kind: "add-row" })}
-          className="mt-3 inline-flex min-h-11 items-center gap-2 panel rounded-md border border-line bg-surface px-3 text-table font-medium text-primary hover:bg-primary-soft"
+          className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-table font-medium text-primary hover:bg-primary-soft"
         >
           <Plus aria-hidden className="size-4" />
           Tambah layanan

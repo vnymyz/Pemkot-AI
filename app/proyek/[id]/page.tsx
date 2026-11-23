@@ -1,8 +1,10 @@
-import { ArrowLeft, ListChecks } from "lucide-react";
+import { StackLabels } from "@/components/ui/stack-labels";
+import { ListChecks } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
+import { PageHeader } from "@/components/ui/page-header";
 import { Pagination } from "@/components/ui/pagination";
 import { AssignmentStatusBadge, ProjectStatusBadge } from "@/components/ui/status-badge";
 import { getSessionState } from "@/lib/auth/session";
@@ -19,7 +21,7 @@ const td = "px-3 py-2";
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="panel rounded-md border border-line bg-surface">
+    <section className="rounded-lg border border-line bg-surface">
       <h2 className="border-b border-line px-4 py-3 text-card font-semibold">{title}</h2>
       {children}
     </section>
@@ -53,26 +55,28 @@ export default async function ProyekDetailPage({
   ];
 
   return (
-    <div className="max-w-5xl space-y-4">
-      <Link href="/proyek" className="inline-flex min-h-11 items-center gap-2 text-table font-medium text-primary">
-        <ArrowLeft aria-hidden className="size-4" />
-        Kembali ke daftar proyek
-      </Link>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-page font-semibold text-navy">{proyek.judul}</h1>
-        <ProjectStatusBadge status={proyek.status} />
-        {!isVendor && ["rencana", "mencari_vendor", "ditunda"].includes(proyek.status) ? (
-          <Link
-            href={`/proyek/${proyek.id}/rekomendasi`}
-            className="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-4 text-table font-medium text-surface transition-colors hover:bg-navy sm:ml-auto"
-          >
-            <ListChecks aria-hidden className="size-4" />
-            Cari vendor ready
-          </Link>
-        ) : null}
-      </div>
-      {proyek.deskripsi ? <p className="text-muted">{proyek.deskripsi}</p> : null}
+    <div className="space-y-6">
+      <PageHeader
+        title={proyek.judul}
+        breadcrumb={[{ label: isVendor ? "Proyek Saya" : "Proyek", href: "/proyek" }, { label: proyek.nomor }]}
+        description={
+          <span className="inline-flex flex-wrap items-center gap-2">
+            <ProjectStatusBadge status={proyek.status} />
+            {proyek.deskripsi ? <span>{proyek.deskripsi}</span> : null}
+          </span>
+        }
+        actions={
+          !isVendor && ["rencana", "mencari_vendor", "ditunda"].includes(proyek.status) ? (
+            <Link
+              href={`/proyek/${proyek.id}/rekomendasi`}
+              className="inline-flex min-h-11 items-center gap-2 rounded-md bg-primary px-4 text-table font-medium text-surface transition-colors hover:bg-navy"
+            >
+              <ListChecks aria-hidden className="size-4" />
+              Lihat vendor yang siap
+            </Link>
+          ) : null
+        }
+      />
 
       <Section title="Informasi proyek">
         <dl className="divide-y divide-line text-table">
@@ -111,6 +115,7 @@ export default async function ProyekDetailPage({
                   ))}
                 </tbody>
               </table>
+<StackLabels />
             </div>
             <Pagination paged={kebutuhan} path={`/proyek/${proyek.id}`} query={query} param="hal_kebutuhan" label="kebutuhan" />
           </>
@@ -153,6 +158,7 @@ export default async function ProyekDetailPage({
                   ))}
                 </tbody>
               </table>
+<StackLabels />
             </div>
             <Pagination paged={penugasan} path={`/proyek/${proyek.id}`} query={query} param="hal_penugasan" label="penugasan" />
           </>

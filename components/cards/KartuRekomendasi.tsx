@@ -10,7 +10,7 @@ import { formatRupiah, formatTanggal } from "@/lib/format";
 import type { Ketersediaan, Rekomendasi, VendorSiap } from "@/lib/services/recommendation-types";
 
 const actionLink =
-  "inline-flex min-h-11 items-center panel rounded-md border border-line bg-surface px-3 text-table font-medium text-primary hover:bg-primary-soft";
+  "inline-flex min-h-11 items-center rounded-lg border border-line bg-surface px-3 text-table font-medium text-primary hover:bg-primary-soft";
 
 const angka = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 });
 
@@ -41,7 +41,7 @@ function Syarat({ children }: { children: React.ReactNode }) {
 export function KartuVendorSiap({ vendor }: { vendor: VendorSiap }) {
   const first = vendor.peringkat === 1;
   return (
-    <article className="panel rounded-md border border-line bg-surface p-4">
+    <article className="rounded-lg border border-line bg-surface p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-3">
           <span
@@ -95,7 +95,7 @@ export function KartuVendorSiap({ vendor }: { vendor: VendorSiap }) {
 export function KartuRekomendasi({ data }: { data: Rekomendasi & { fokus?: boolean } }) {
   return (
     <div className="space-y-3">
-      <div className="panel rounded-md border border-line bg-surface px-4 py-3">
+      <div className="rounded-lg border border-line bg-surface px-4 py-3">
         <p className="text-card font-semibold text-navy">Rekomendasi: {data.proyek.judul}</p>
         <p className="text-caption text-muted">
           <span className="font-mono">{data.proyek.nomor}</span> · {formatTanggal(data.proyek.mulai)} sampai{" "}
@@ -115,7 +115,7 @@ export function KartuRekomendasi({ data }: { data: Rekomendasi & { fokus?: boole
       )}
 
       {data.gugur.length > 0 ? (
-        <details open={data.fokus} className="panel rounded-md border border-line bg-surface">
+        <details open={data.fokus} className="rounded-lg border border-line bg-surface">
           <summary className="flex min-h-11 cursor-pointer items-center px-4 text-table font-medium text-primary">
             {data.fokus ? "Alasan vendor gugur" : `Lihat ${data.gugur.length} vendor yang gugur`}
           </summary>
@@ -145,7 +145,7 @@ export function KartuRekomendasi({ data }: { data: Rekomendasi & { fokus?: boole
 export function KartuKetersediaan({ data }: { data: { ketersediaan: Ketersediaan } }) {
   const item = data.ketersediaan;
   return (
-    <article className="panel rounded-md border border-line bg-surface p-4">
+    <article className="rounded-lg border border-line bg-surface p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h3 className="text-card font-semibold text-navy">{item.nama}</h3>

@@ -1,3 +1,4 @@
+import { StackLabels } from "@/components/ui/stack-labels";
 import { Pagination } from "@/components/ui/pagination";
 import { DocStatusBadge } from "@/components/ui/status-badge";
 import { formatTanggal } from "@/lib/format";
@@ -31,7 +32,7 @@ export function DokumenVendor({
   const paged = paginate(rows, query.hal_dokumen, PAGE_SIZE);
 
   return (
-    <section className="panel rounded-md border border-line bg-surface">
+    <section data-tour="dokumen" className="rounded-lg border border-line bg-surface">
       <h2 className="border-b border-line px-4 py-3 text-card font-semibold">Dokumen pendaftaran</h2>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[860px] text-left text-table">
@@ -92,6 +93,7 @@ export function DokumenVendor({
             })}
           </tbody>
         </table>
+<StackLabels />
       </div>
       <Pagination paged={paged} path={`/vendor/${vendorId}`} query={query} param="hal_dokumen" label="dokumen" />
       {canManage ? <DokumenUpload vendorId={vendorId} /> : null}

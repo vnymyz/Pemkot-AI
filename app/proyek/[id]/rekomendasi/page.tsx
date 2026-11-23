@@ -1,8 +1,10 @@
-import { ArrowLeft, CircleX, Info, TriangleAlert } from "lucide-react";
+import { StackLabels } from "@/components/ui/stack-labels";
+import { CircleX, Info, TriangleAlert } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { KartuVendorSiap } from "@/components/cards/KartuRekomendasi";
+import { PageHeader } from "@/components/ui/page-header";
 import { Pagination } from "@/components/ui/pagination";
 import { ProjectStatusBadge, VendorStatusBadge } from "@/components/ui/status-badge";
 import { getSessionState } from "@/lib/auth/session";
@@ -32,35 +34,35 @@ export default async function RekomendasiPage({
   const path = `/proyek/${data.proyek.id}/rekomendasi`;
 
   return (
-    <div className="max-w-5xl space-y-4">
-      <Link href={`/proyek/${data.proyek.id}`} className="inline-flex min-h-11 items-center gap-2 text-table font-medium text-primary">
-        <ArrowLeft aria-hidden className="size-4" />
-        Kembali ke detail proyek
-      </Link>
-
-      <div>
-        <p className="text-caption font-medium text-muted">Rekomendasi vendor</p>
-        <div className="mt-1 flex flex-wrap items-center gap-3">
-          <h1 className="text-page font-semibold text-navy">{data.proyek.judul}</h1>
-          <ProjectStatusBadge status={data.proyek.status} />
-        </div>
-        <p className="mt-1 text-table text-muted">
-          <span className="font-mono">{data.proyek.nomor}</span> · {data.proyek.opd} ·{" "}
-          {formatTanggal(data.proyek.mulai)} sampai {formatTanggal(data.proyek.selesai)} · Anggaran{" "}
-          {formatRupiah(data.proyek.anggaran)}
-        </p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Vendor yang siap"
+        breadcrumb={[
+          { label: "Proyek", href: "/proyek" },
+          { label: data.proyek.judul, href: `/proyek/${data.proyek.id}` },
+          { label: "Vendor yang siap" },
+        ]}
+        description={
+          <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1">
+            <ProjectStatusBadge status={data.proyek.status} />
+            <span>
+              {data.proyek.judul}, {data.proyek.opd}. {formatTanggal(data.proyek.mulai)} sampai {formatTanggal(data.proyek.selesai)}.
+              Anggaran {formatRupiah(data.proyek.anggaran)}.
+            </span>
+          </span>
+        }
+      />
 
       <dl className="grid gap-3 sm:grid-cols-3">
-        <div className="panel rounded-md border border-line bg-surface p-4">
-          <dt className="text-caption text-muted">Vendor ready</dt>
+        <div className="rounded-lg border border-line bg-surface p-4">
+          <dt className="text-caption text-muted">Vendor siap</dt>
           <dd className="text-page font-semibold text-ok tabular-nums">{data.jumlah_ready}</dd>
         </div>
-        <div className="panel rounded-md border border-line bg-surface p-4">
-          <dt className="text-caption text-muted">Vendor gugur</dt>
+        <div className="rounded-lg border border-line bg-surface p-4">
+          <dt className="text-caption text-muted">Vendor tidak memenuhi syarat</dt>
           <dd className="text-page font-semibold text-bad tabular-nums">{data.jumlah_gugur}</dd>
         </div>
-        <div className="panel rounded-md border border-line bg-surface p-4">
+        <div className="rounded-lg border border-line bg-surface p-4">
           <dt className="text-caption text-muted">Kebutuhan</dt>
           <dd className="text-table">
             {data.kebutuhan.map((item) => (
@@ -79,7 +81,7 @@ export default async function RekomendasiPage({
       </p>
 
       <section aria-labelledby="ready" className="space-y-3">
-        <h2 id="ready" className="text-section font-semibold text-navy">Vendor ready</h2>
+        <h2 id="ready" className="text-section font-semibold text-navy">Peringkat vendor siap</h2>
         {data.ready.length === 0 ? (
           <div className="rounded-md border border-warn bg-surface p-4 text-table text-warn">
             <p className="flex items-start gap-2 font-medium">
@@ -103,7 +105,7 @@ export default async function RekomendasiPage({
       {data.gugur.length > 0 ? (
         <section aria-labelledby="gugur" className="space-y-3">
           <h2 id="gugur" className="text-section font-semibold text-navy">Vendor yang gugur</h2>
-          <div className="overflow-hidden panel rounded-md border border-line bg-surface">
+          <div className="overflow-hidden rounded-lg border border-line bg-surface">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[680px] text-left text-table">
                 <thead className="bg-primary-soft">
@@ -136,6 +138,7 @@ export default async function RekomendasiPage({
                   ))}
                 </tbody>
               </table>
+<StackLabels />
             </div>
             <Pagination paged={gugur} path={path} query={query} label="vendor" />
           </div>

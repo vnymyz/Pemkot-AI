@@ -1,6 +1,9 @@
+import { StackLabels } from "@/components/ui/stack-labels";
 import { Search } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 import { LiveSearchForm } from "@/components/ui/live-search-form";
 import { Pagination } from "@/components/ui/pagination";
 import { ProjectStatusBadge } from "@/components/ui/status-badge";
@@ -12,7 +15,7 @@ import { PRIORITAS_LABEL, PROJECT_STATUS, PROJECT_STATUS_LABEL } from "@/lib/ser
 
 export const metadata: Metadata = { title: "Proyek | Pemkot-AI" };
 
-const field = "h-11 w-full panel rounded-md border border-line bg-surface px-3 text-table text-text";
+const field = "h-11 w-full rounded-lg border border-line bg-surface px-3 text-table text-text";
 const one = (value: string | string[] | undefined) => (typeof value === "string" ? value.slice(0, 120) : "");
 
 export default async function ProyekPage({
@@ -46,13 +49,17 @@ export default async function ProyekPage({
 
   return (
     <div>
-      <h1 className="text-page font-semibold text-navy">{isVendor ? "Proyek Saya" : "Proyek"}</h1>
-      <p className="mt-1 text-table text-muted">
-        {proyek.length} proyek ditemukan
-        {session.role === "pic_proyek" && session.opdNama ? ` di ${session.opdNama}` : ""}.
-      </p>
+      <PageHeader
+        title={isVendor ? "Proyek Saya" : "Proyek"}
+        description={
+          isVendor
+            ? "Proyek yang melibatkan vendor Bapak/Ibu."
+            : `Daftar proyek pengadaan${session.role === "pic_proyek" && session.opdNama ? ` di ${session.opdNama}` : ""}. Buka satu proyek untuk melihat kebutuhan dan vendor yang siap.`
+        }
+      />
 
-      <LiveSearchForm action="/proyek" className="mt-4 grid items-center gap-3 panel rounded-md border border-line bg-surface p-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div data-tour="proyek-filter">
+      <LiveSearchForm action="/proyek" className="grid items-center gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <label className="lg:col-span-2">
           <span className="sr-only">Cari judul atau nomor proyek</span>
           <input name="q" defaultValue={q} placeholder="Cari judul atau nomor proyek" className={field} />
@@ -100,62 +107,72 @@ export default async function ProyekPage({
           </button>
         </div>
       </LiveSearchForm>
+      </div>
 
       {proyek.length === 0 ? (
-        <p className="mt-4 panel rounded-md border border-line bg-surface p-6 text-center text-table text-muted">
-          {isVendor ? "Belum ada proyek yang ditugaskan kepada vendor ini." : "Belum ada proyek yang sesuai. Coba ubah kata kunci atau filter."}
-        </p>
+        <div data-tour="proyek-tabel" className="mt-4 rounded-lg border border-line bg-surface">
+          <EmptyState
+            title={isVendor ? "Belum ada proyek" : "Tidak ada proyek yang sesuai"}
+            description={
+              isVendor
+                ? "Proyek muncul di sini setelah vendor Bapak/Ibu ditugaskan."
+                : "Coba kata kunci lain atau hapus filter."
+            }
+            action={isVendor ? undefined : { label: "Hapus filter", href: "/proyek" }}
+          />
+        </div>
       ) : (
-        <div className="mt-4 overflow-hidden panel rounded-md border border-line bg-surface">
+        <div data-tour="proyek-tabel" className="mt-4 overflow-hidden rounded-lg border border-line bg-surface">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1120px] border-collapse text-left text-table">
-              <thead className="bg-primary-soft font-semibold">
+            <table className="ledger min-w-[1120px] ">
+              <thead>
                 <tr>
-                  <th scope="col" className="w-12 px-3 py-2 text-right">No</th>
-                  <th scope="col" className="px-3 py-2">Proyek</th>
-                  <th scope="col" className="px-3 py-2">Dinas</th>
-                  <th scope="col" className="px-3 py-2">Status</th>
-                  <th scope="col" className="px-3 py-2">Periode</th>
-                  {isVendor ? null : <th scope="col" className="px-3 py-2 text-right">Anggaran</th>}
-                  <th scope="col" className="px-3 py-2">Kebutuhan</th>
-                  <th scope="col" className="px-3 py-2">Vendor</th>
-                  <th scope="col" className="px-3 py-2">Prioritas</th>
+                  <th scope="col" className="w-12 px-4 py-3.5 text-right">No</th>
+                  <th scope="col" className="px-4 py-3.5">Proyek</th>
+                  <th scope="col" className="px-4 py-3.5">Dinas</th>
+                  <th scope="col" className="px-4 py-3.5">Status</th>
+                  <th scope="col" className="px-4 py-3.5">Periode</th>
+                  {isVendor ? null : <th scope="col" className="px-4 py-3.5 text-right">Anggaran</th>}
+                  <th scope="col" className="px-4 py-3.5">Kebutuhan</th>
+                  <th scope="col" className="px-4 py-3.5">Vendor</th>
+                  <th scope="col" className="px-4 py-3.5">Prioritas</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
                 {paged.rows.map((item, index) => (
                   <tr key={item.id}>
-                    <td className="px-3 py-2 text-right text-muted tabular-nums">{paged.start + index}</td>
-                    <td className="px-3 py-2">
+                    <td className="px-4 py-3.5 text-right text-muted tabular-nums">{paged.start + index}</td>
+                    <td className="px-4 py-3.5">
                       <Link href={`/proyek/${item.id}`} className="font-medium text-primary underline-offset-2 hover:underline">
                         {item.judul}
                       </Link>
                       <span className="block font-mono text-caption text-muted">{item.nomor}</span>
                     </td>
-                    <td className="px-3 py-2">{item.opd}</td>
-                    <td className="px-3 py-2"><ProjectStatusBadge status={item.status} /></td>
-                    <td className="px-3 py-2 whitespace-nowrap">
+                    <td className="px-4 py-3.5">{item.opd}</td>
+                    <td className="px-4 py-3.5"><ProjectStatusBadge status={item.status} /></td>
+                    <td className="px-4 py-3.5 whitespace-nowrap">
                       {formatTanggal(item.mulai)}
                       <span className="block text-caption text-muted">sampai {formatTanggal(item.selesai)}</span>
                     </td>
-                    {isVendor ? null : <td className="px-3 py-2 text-right whitespace-nowrap tabular-nums">{formatRupiah(item.anggaran)}</td>}
-                    <td className="px-3 py-2">
+                    {isVendor ? null : <td className="px-4 py-3.5 text-right whitespace-nowrap tabular-nums">{formatRupiah(item.anggaran)}</td>}
+                    <td className="px-4 py-3.5">
                       {item.kategori.join(", ")}
                       <span className="block text-caption text-muted">
                         Min. {item.tenaga_min} tenaga{item.sertifikat_wajib.length ? `, ${item.sertifikat_wajib.join(", ")}` : ""}
                       </span>
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-4 py-3.5">
                       {item.vendor.length ? item.vendor.join(", ") : <span className="text-muted">Belum ada</span>}
                       {item.jumlah_usulan > 0 ? (
                         <span className="block text-caption text-warn">{item.jumlah_usulan} usulan menunggu</span>
                       ) : null}
                     </td>
-                    <td className="px-3 py-2">{item.prioritas ? PRIORITAS_LABEL[item.prioritas] : "Tidak ada data"}</td>
+                    <td className="px-4 py-3.5">{item.prioritas ? PRIORITAS_LABEL[item.prioritas] : "Tidak ada data"}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+<StackLabels />
           </div>
           <Pagination paged={paged} path="/proyek" query={params} label="proyek" />
         </div>

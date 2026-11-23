@@ -12,10 +12,10 @@ const inputClass =
   "block h-11 w-full rounded-md border border-line bg-surface px-3 text-body text-text";
 
 const QUICK_ROLES = [
-  { role: "admin_pengadaan", label: "Admin Pengadaan" },
-  { role: "pic_proyek", label: "PIC Proyek" },
-  { role: "kepala_dinas", label: "Kepala Dinas" },
-  { role: "vendor", label: "Vendor" },
+  { role: "admin_pengadaan", label: "Admin Pengadaan", hint: "Mengelola vendor dan usulan" },
+  { role: "pic_proyek", label: "PIC Proyek", hint: "Mencari vendor untuk proyek" },
+  { role: "kepala_dinas", label: "Kepala Dinas", hint: "Menyetujui atau menolak usulan" },
+  { role: "vendor", label: "Vendor", hint: "Mengisi data dan dokumen" },
 ] as const;
 
 export function LoginForm({
@@ -111,16 +111,17 @@ export function LoginForm({
           {quickPending ? <ProgressBar /> : null}
           {next ? <input type="hidden" name="next" value={next} /> : null}
           <fieldset disabled={quickPending || !quickLoginEnabled} aria-busy={quickPending} className="space-y-3">
-            <legend className="text-table font-medium text-navy">Login cepat sebagai</legend>
-            <div className="grid grid-cols-2 gap-2">
-              {QUICK_ROLES.map(({ role, label }) => (
+            <legend className="text-table font-medium text-navy">Coba sebagai</legend>
+            <p className="text-caption text-muted">Khusus demo. Pilih satu peran untuk melihat tampilan akun tersebut.</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {QUICK_ROLES.map(({ role, label, hint }) => (
                 <button
                   key={role}
                   type="submit"
                   name="role"
                   value={role}
                   onClick={() => setQuickRole(role)}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-line bg-surface px-3 text-table font-medium text-primary transition-colors hover:bg-primary-soft disabled:cursor-not-allowed disabled:bg-bg disabled:text-muted"
+                  className="flex min-h-12 items-center gap-3 rounded-md border border-line bg-surface px-3 py-2 text-left text-table transition-colors hover:border-primary hover:bg-primary-soft disabled:cursor-not-allowed disabled:bg-bg disabled:text-muted"
                 >
                   {quickPending && quickRole === role ? (
                     <>
@@ -128,7 +129,10 @@ export function LoginForm({
                       <span className="sr-only">Memproses </span>
                     </>
                   ) : null}
-                  {label}
+                  <span className="min-w-0">
+                    <span className="block font-medium text-navy">{label}</span>
+                    <span className="block text-caption text-muted">{hint}</span>
+                  </span>
                 </button>
               ))}
             </div>

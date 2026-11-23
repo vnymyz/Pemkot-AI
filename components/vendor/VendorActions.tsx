@@ -66,7 +66,7 @@ export function VendorActions({
       {canEdit ? (
         <Link
           href={`/vendor/${id}`}
-          className="inline-flex min-h-11 min-w-24 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-line px-3 text-table font-medium text-primary hover:bg-primary-soft"
+          className="inline-flex min-h-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-line px-3 text-table font-medium text-primary hover:bg-primary-soft"
         >
           <Pencil aria-hidden className="size-4" />
           Edit
@@ -82,7 +82,7 @@ export function VendorActions({
             setError(null);
             setDialogOpen(true);
           }}
-          className="inline-flex min-h-11 min-w-32 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-bad px-3 text-table font-medium text-bad hover:bg-surface"
+          className="inline-flex min-h-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-bad px-3 text-table font-medium text-bad hover:bg-surface"
         >
           <Archive aria-hidden className="size-4" />
           Arsipkan

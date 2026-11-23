@@ -1,3 +1,6 @@
+import { ShieldCheck } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
 import { CircleCheck, CircleX, Clock } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -19,8 +22,13 @@ export default async function PersetujuanPage({
   if (state.status !== "ready") return null;
   if (state.session.role !== "kepala_dinas") {
     return (
-      <div className="panel rounded-md border border-line bg-surface p-6 text-table text-muted">
-        Halaman ini khusus untuk Kepala Dinas.
+      <div className="rounded-lg border border-line bg-surface">
+        <EmptyState
+          icon={ShieldCheck}
+          title="Halaman ini khusus Kepala Dinas"
+          description="Usulan yang Bapak/Ibu buat dapat dipantau di halaman Penugasan."
+          action={{ label: "Buka Penugasan", href: "/penugasan" }}
+        />
       </div>
     );
   }
@@ -31,19 +39,22 @@ export default async function PersetujuanPage({
 
   return (
     <div className="max-w-5xl space-y-4">
-      <div>
-        <h1 className="text-page font-semibold text-navy">Persetujuan</h1>
-        <p className="mt-1 text-table text-muted">{rows.length} usulan ditemukan.</p>
-      </div>
+      <PageHeader
+        title="Persetujuan"
+        description="Usulan yang menunggu keputusan Bapak/Ibu. Baca rincian, tulis catatan bila perlu, lalu setujui atau tolak."
+      />
 
       {rows.length === 0 ? (
-        <p className="panel rounded-md border border-line bg-surface p-6 text-center text-table text-muted">
-          Belum ada usulan yang menunggu atau sudah diputuskan.
-        </p>
+        <div className="rounded-lg border border-line bg-surface">
+          <EmptyState
+            title="Belum ada usulan"
+            description="Usulan penugasan dan perubahan vendor akan muncul di sini untuk diputuskan."
+          />
+        </div>
       ) : (
         <div className="space-y-3">
-          {paged.rows.map((item) => (
-            <article key={item.id} className="panel rounded-md border border-line bg-surface p-4">
+          {paged.rows.map((item, position) => (
+            <article key={item.id} data-tour={position === 0 ? "persetujuan-kartu" : undefined} className="rounded-lg border border-line bg-surface p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   {item.jenis === "project_assignment" ? (

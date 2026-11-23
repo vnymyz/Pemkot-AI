@@ -67,22 +67,25 @@ export function ChatWindow({
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-4 md:p-6">
           {messages.length === 0 ? (
             <div className="py-6">
-              <h1 className="text-page font-semibold text-navy">Asisten AI</h1>
-              <p className="mt-2 text-muted">
-                Selamat datang, Bapak/Ibu. Saya membantu urusan vendor dan proyek berdasarkan data di sistem.
+              <h1 className="text-[2rem] leading-10 font-semibold text-navy">Apa yang bisa saya bantu?</h1>
+              <p className="mt-2 text-body text-muted">
+                Saya menjawab berdasarkan data vendor dan proyek di sistem. Pilih contoh di bawah, atau tulis pertanyaan sendiri.
               </p>
-              <div className="mt-5 grid gap-2 sm:grid-cols-2">
+              <div data-tour="chat-saran" className="mt-6 grid gap-3 sm:grid-cols-2">
                 {suggestions.map((item) => (
                   <button
                     key={item}
                     type="button"
                     onClick={() => send(item)}
-                    className="min-h-11 rounded-md border border-line bg-surface px-3 py-2 text-left text-table text-primary transition-colors hover:bg-primary-soft"
+                    className="min-h-14 rounded-lg border border-line bg-surface px-4 py-3 text-left text-table text-text transition-colors hover:border-primary hover:bg-primary-soft"
                   >
                     {item}
                   </button>
                 ))}
               </div>
+              <p className="mt-6 text-caption text-muted">
+                Saya hanya membahas vendor, proyek, dan pekerjaan kantor. Usulan yang saya siapkan tetap menunggu persetujuan.
+              </p>
             </div>
           ) : (
             messages.map((message) => <MessageBubble key={message.id} message={message} />)

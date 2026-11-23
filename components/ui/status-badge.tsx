@@ -48,10 +48,38 @@ const ASSIGNMENT: Record<string, Style> = {
   dibatalkan: { label: "Dibatalkan", icon: CircleX, className: "border-bad bg-surface text-bad" },
 };
 
+/** One plain sentence per status, shown as a tooltip so a new person does not have to guess. */
+const HINT: Record<string, string> = {
+  Aktif: "Vendor sudah disetujui dan dapat diusulkan pada proyek.",
+  Verifikasi: "Dokumen vendor sedang diperiksa Admin.",
+  Draft: "Data vendor masih disusun dan belum dikirim.",
+  Ditolak: "Usulan ditolak. Data dapat diperbaiki lalu dikirim ulang.",
+  "Daftar hitam": "Vendor tidak dapat dipakai pada proyek.",
+  Diarsipkan: "Vendor tidak lagi dipakai, riwayatnya tetap tersimpan.",
+  Berlaku: "Sertifikat masih berlaku.",
+  "Hampir habis": "Sertifikat berakhir dalam 60 hari.",
+  Kedaluwarsa: "Sertifikat sudah lewat masa berlaku.",
+  Rencana: "Proyek masih direncanakan.",
+  "Mencari vendor": "Proyek menunggu vendor yang sesuai.",
+  Berjalan: "Pekerjaan sedang berlangsung.",
+  Selesai: "Pekerjaan sudah selesai.",
+  Ditunda: "Proyek ditunda untuk sementara.",
+  Dibatalkan: "Dibatalkan dan tidak dilanjutkan.",
+  Menunggu: "Usulan menunggu keputusan Kepala Dinas.",
+  Disetujui: "Kepala Dinas menyetujui. Vendor boleh mulai.",
+  Ready: "Vendor memenuhi semua syarat wajib proyek ini.",
+  "Tidak bisa": "Vendor tidak memenuhi satu atau lebih syarat wajib.",
+  Lengkap: "Dokumen sesuai dengan data vendor.",
+  "Tidak cocok": "Isi dokumen berbeda dari data vendor.",
+  "Perlu diperiksa manual": "Admin perlu memeriksa dokumen ini sendiri.",
+  "Belum diperiksa": "Dokumen belum diperiksa.",
+  "Belum ada riwayat": "Vendor belum pernah mengerjakan proyek di sini, jadi belum ada penilaian.",
+};
+
 function Badge({ style }: { style: Style }) {
   const Icon = style.icon;
   return (
-    <span className={`${base} ${style.className}`}>
+    <span title={HINT[style.label]} className={`${base} ${style.className}`}>
       <Icon aria-hidden className="size-3.5" />
       {style.label}
     </span>

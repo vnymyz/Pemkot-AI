@@ -43,7 +43,7 @@ export function GlobalSearch() {
   }
 
   return (
-    <div className="relative min-w-0 w-full md:w-96">
+    <div data-tour="search" className="relative min-w-0 w-full md:w-96">
       <form onSubmit={search}>
         <label className="sr-only" htmlFor="global-search">Cari vendor atau proyek</label>
         <input

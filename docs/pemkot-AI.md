@@ -1510,10 +1510,10 @@ Tidak ada teks di bawah 13 px.
 
 ```mermaid
 flowchart TB
-    HDR["NAVBAR primary-soft<br/>pencarian global di tengah<br/>tanggal dan waktu + notifikasi di kanan"]
+    HDR["NAVBAR bg<br/>pencarian global di tengah<br/>tanggal dan waktu + notifikasi di kanan"]
     subgraph Body["Badan halaman"]
         direction LR
-        SB["SIDEBAR navy<br/>logo pemkot, navigasi,<br/>profil pengguna dan tombol keluar"]
+        SB["SIDEBAR putih<br/>logo pemkot, navigasi,<br/>panduan singkat, profil, tombol keluar"]
         CT["AREA KONTEN<br/>judul halaman, filter,<br/>tabel atau kartu"]
         CP["PANEL CHAT (opsional)<br/>asisten AI di sisi kanan"]
         SB --> CT --> CP
@@ -1522,12 +1522,19 @@ flowchart TB
     HDR --> Body --> FTR
 ```
 
-- Desktop dan tablet adalah prioritas. Di layar kecil sidebar menjadi menu yang bisa dibuka, tabel bisa digulir ke samping.
+- Desktop dan tablet adalah prioritas. Di layar kecil sidebar menjadi menu yang bisa dibuka dan tabel daftar berubah menjadi kartu bertumpuk (setiap baris menampilkan nama kolomnya), sehingga tidak ada gulir ke samping.
+- **Arah "Quiet Ledger"**: halaman terang dan lapang, isi dibatasi `max-w-7xl`, panel putih dengan garis tipis tanpa bayangan, tabel terbuka (tanpa latar kepala tabel, hanya garis tipis antar baris). Bayangan hanya untuk benda yang melayang (dialog, toast, menu).
+- **Kepala halaman** (`PageHeader`) selalu menjawab tiga hal: di mana saya (judul), ini apa (satu kalimat), apa yang bisa saya lakukan (satu tombol utama di kanan). Halaman detail memakai jejak halaman ("Vendor / CV Alkes Mandiri") untuk kembali ke daftar.
+- **Keadaan kosong** (`EmptyState`) selalu berisi alasan dan satu langkah berikutnya, misalnya "Belum ada berkas. Minta Asisten AI membuat Excel", bukan kotak kosong.
+- **Tahap** (`Stepper`) dipakai untuk jalur tetap: vendor Draft, Verifikasi, Aktif. Tahap sekarang diberi kata "Sekarang", bukan hanya warna.
+- **Dashboard sebagai titik mulai**: kartu "Yang perlu Bapak/Ibu lakukan" per peran, masing-masing dengan angka dari database dan satu tombol ke tempat yang tepat. Hanya kartu pertama yang berisi tugas memakai tombol utama.
+- **Onboarding** (panduan sorot): satu tur langkah demi langkah per peran yang menelusuri pekerjaan peran itu lintas halaman. Halaman digelapkan, satu elemen asli diberi cincin emas, dan kartu kecil (nomor langkah, judul, penjelasan, Lewati, Kembali, Lanjut) menjelaskannya dengan panah. Tur membuka halaman yang dibutuhkan sendiri, melewati langkah yang elemennya tidak ada, mendukung tombol panah dan Esc, muncul sekali per peran di browser, dan dapat diulang lewat "Panduan singkat". Tanpa gerakan, cincin berpindah tanpa transisi.
+- **Status dijelaskan**: setiap lencana status punya kalimat penjelasan sebagai tooltip.
 - Item sidebar menyesuaikan peran (vendor hanya melihat Dashboard, Asisten AI, dan data miliknya).
-- Navbar berwarna `primary-soft` di sebelah kanan sidebar navy. Pencarian global selebar 24 rem berada di tengah pada desktop dan bergeser ke kiri pada layar sempit agar tidak bertabrakan; tanggal dan waktu WIB serta notifikasi persetujuan berada di kanan.
+- Navbar berwarna `bg` dengan garis tipis di bawahnya, di sebelah kanan sidebar putih bergaris tipis, sehingga keduanya terlihat berbeda. Pencarian global selebar 24 rem berada di tengah pada desktop dan bergeser ke kiri pada layar sempit agar tidak bertabrakan; tanggal dan waktu WIB serta notifikasi persetujuan berada di kanan.
 - Pencarian global hanya menampilkan vendor dan proyek yang dapat diakses peran pengguna. Notifikasi menampilkan persetujuan yang menunggu untuk Kepala Dinas dan keputusan atas usulan sendiri untuk Admin Pengadaan atau PIC Proyek.
 - Pada halaman Asisten AI (`/chat`), navbar disembunyikan agar ruang percakapan lebih luas. Sidebar tetap tampil.
-- Item sidebar aktif memakai latar `primary` dan teks putih; item lain berteks putih dengan hover `primary`.
+- Item sidebar aktif memakai latar `primary-soft`, teks `navy` tebal, dan penanda `primary` 3 px di tepi kiri (seperti tab map); item lain berteks `text` dengan hover `primary-soft`. Ada tautan "Panduan singkat" di kaki sidebar dan tautan "Lewati ke isi halaman" untuk papan ketik.
 - Sidebar utama bisa dibuka tutup menjadi deretan ikon. Panel riwayat Asisten AI bisa dibuka tutup dan digeser lebarnya (200 sampai 440 px). Pilihan ini diingat per browser.
 - Halaman **Asisten AI** (`/chat`) memakai lebar penuh dengan daftar riwayat di kiri, seperti Halvi, tetapi dengan gaya formal.
 
@@ -1604,7 +1611,7 @@ flowchart TB
 | Kosong | Kalimat singkat dan petunjuk, misalnya "Belum ada vendor yang sesuai. Coba ubah periode atau kategori." |
 | Memuat | Bar tipis `gold` di atas halaman. Saat pindah halaman, sidebar dan header tetap tampil dan isi halaman diganti skeleton abu berbentuk tabel atau kartu (`loading.tsx` per bagian). Tombol yang sedang diproses menampilkan ikon putar dan tetap memakai namanya sendiri, bukan teks "Memproses" |
 | Toast | Setiap aksi yang mengubah data (usulan, keputusan, unggah, hapus, berkas dibuat) menampilkan toast kanan bawah: ikon dan kata ("Berhasil", "Gagal", "Info"), teks memakai kata kerja yang sama dengan tombolnya, tertutup sendiri setelah 5 detik (galat 8 detik), berhenti saat disorot, maksimal 3. Galat di dalam dialog tetap tampil di dalam dialog agar bisa dicoba lagi |
-| Kedalaman | Dua token bayangan dari navy beraloi rendah: `--shadow-raised` (tabel dan kartu) dan `--shadow-overlay` (dialog dan toast). Tidak ada warna baru. Menu aktif memakai tab emas 3 px di tepi kiri |
+| Kedalaman | Satu token bayangan dari navy beraloi rendah: `--shadow-overlay` (dialog, toast, menu). Panel datar dengan garis tipis. Tidak ada warna baru |
 | Gagal | Kotak `bad` ringan dengan pesan jelas dan tombol coba lagi |
 | Asisten offline | "Asisten sedang tidak tersedia. Silakan coba lagi sebentar lagi." dengan tombol coba lagi |
 

@@ -1,10 +1,12 @@
-import { ArrowLeft, TriangleAlert } from "lucide-react";
+import { StackLabels } from "@/components/ui/stack-labels";
+import { TriangleAlert } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { FormDaftarVendor } from "@/components/cards/FormDaftarVendor";
+import { PageHeader } from "@/components/ui/page-header";
 import { Pagination } from "@/components/ui/pagination";
+import { Stepper } from "@/components/ui/stepper";
 import { CertStatusBadge, NoHistoryBadge, VendorStatusBadge } from "@/components/ui/status-badge";
 import { AjukanAktivasiButton } from "@/components/vendor/AjukanAktivasiButton";
 import { DokumenVendor } from "@/components/vendor/DokumenVendor";
@@ -20,12 +22,25 @@ export const metadata: Metadata = { title: "Detail Vendor | Pemkot-AI" };
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="panel rounded-md border border-line bg-surface">
+    <section className="rounded-lg border border-line bg-surface">
       <h2 className="border-b border-line px-4 py-3 text-card font-semibold">{title}</h2>
       {children}
     </section>
   );
 }
+
+const STEPS = [
+  { key: "draft", label: "Draft", hint: "Data dan dokumen diisi" },
+  { key: "verifikasi", label: "Verifikasi", hint: "Admin memeriksa dokumen" },
+  { key: "aktif", label: "Aktif", hint: "Dapat diusulkan pada proyek" },
+];
+
+const NEXT_STEP: Record<string, string> = {
+  draft: "Lengkapi data dan unggah NIB, NPWP, dan Akta. Setelah semuanya lengkap, kirim untuk verifikasi.",
+  ditolak: "Usulan sebelumnya ditolak. Perbaiki data, lalu kirim ulang untuk verifikasi.",
+  verifikasi: "Admin memeriksa dokumen. Setelah lengkap, Admin mengajukan aktivasi ke Kepala Dinas.",
+  aktif: "Vendor aktif dan dapat diusulkan pada proyek.",
+};
 
 const th = "px-3 py-2 font-semibold";
 const td = "px-3 py-2";
@@ -78,18 +93,31 @@ export default async function VendorDetailPage({
   ];
 
   return (
-    <div className="max-w-5xl space-y-4">
-      {state.session.role === "vendor" ? null : (
-        <Link href="/vendor" className="inline-flex min-h-11 items-center gap-2 text-table font-medium text-primary">
-          <ArrowLeft aria-hidden className="size-4" />
-          Kembali ke daftar vendor
-        </Link>
-      )}
+    <div className="space-y-6">
+      <PageHeader
+        title={vendor.nama}
+        description={
+          <span className="inline-flex flex-wrap items-center gap-2">
+            <VendorStatusBadge status={vendor.status} />
+            <span>{NEXT_STEP[vendor.status] ?? ""}</span>
+          </span>
+        }
+        breadcrumb={
+          state.session.role === "vendor"
+            ? [{ label: "Data Vendor Saya" }]
+            : [{ label: "Vendor", href: "/vendor" }, { label: vendor.nama }]
+        }
+      />
 
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-page font-semibold text-navy">{vendor.nama}</h1>
-        <VendorStatusBadge status={vendor.status} />
-      </div>
+      {["draft", "ditolak", "verifikasi", "aktif"].includes(vendor.status) ? (
+        <div data-tour="vendor-stepper" className="rounded-lg border border-line bg-surface p-5">
+          <Stepper
+            label="Tahap vendor"
+            steps={STEPS}
+            current={vendor.status === "ditolak" ? "draft" : vendor.status}
+          />
+        </div>
+      ) : null}
 
       {vendor.peringatan.length > 0 ? (
         <div role="status" className="rounded-md border border-warn bg-surface p-3 text-table text-warn">
@@ -140,7 +168,9 @@ export default async function VendorDetailPage({
       {draftForm ? <FormDaftarVendor key={vendor.diperbarui} data={draftForm} /> : null}
 
       {inDraft && ownsOrAdmin ? (
-        <KirimVerifikasiButton id={vendor.id} name={vendor.nama} missing={[...missingDocuments]} />
+        <div data-tour="vendor-kirim">
+          <KirimVerifikasiButton id={vendor.id} name={vendor.nama} missing={[...missingDocuments]} />
+        </div>
       ) : null}
       {vendor.status === "verifikasi" && isAdmin ? (
         pendingActivation ? (
@@ -188,6 +218,7 @@ export default async function VendorDetailPage({
               ))}
             </tbody>
           </table>
+<StackLabels />
         </div>
         <Pagination paged={layanan} path={`/vendor/${vendor.id}`} query={query} param="hal_layanan" label="layanan" />
       </Section>
@@ -222,6 +253,7 @@ export default async function VendorDetailPage({
                   ))}
                 </tbody>
               </table>
+<StackLabels />
             </div>
             <Pagination paged={sertifikat} path={`/vendor/${vendor.id}`} query={query} param="hal_sertifikat" label="sertifikat" />
             </>

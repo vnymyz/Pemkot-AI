@@ -30,6 +30,7 @@ export function Composer({
         event.preventDefault();
         if (!disabled) onSend();
       }}
+      data-tour="chat-tulis"
       className="shrink-0 border-t border-line bg-surface p-3"
     >
       <div className="mx-auto flex max-w-4xl items-end gap-2">

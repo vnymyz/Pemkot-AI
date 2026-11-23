@@ -1,6 +1,9 @@
-import { Download, FileSpreadsheet, FileText, Presentation } from "lucide-react";
+import { StackLabels } from "@/components/ui/stack-labels";
+import { Download, FileSpreadsheet, Files, FileText, Presentation } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Pagination } from "@/components/ui/pagination";
 import { getSessionState } from "@/lib/auth/session";
 import { formatTanggal } from "@/lib/format";
@@ -31,36 +34,42 @@ export default async function BerkasPage({
 
   return (
     <div>
-      <h1 className="text-page font-semibold text-navy">Berkas</h1>
-      <p className="mt-1 text-table text-muted">
-        {rows.length} berkas buatan Asisten AI{isKepala ? " dari semua pengguna" : " milik Bapak/Ibu"}. Tautan unduh dibuat saat diklik
-        dan berlaku 1 jam.
-      </p>
-
-      {rows.length === 0 ? (
-        <div className="mt-4 panel rounded-md border border-line bg-surface p-6 text-center text-table text-muted">
-          <p>Belum ada berkas. Minta Asisten AI membuat Word, Excel, atau PowerPoint dari data yang boleh Bapak/Ibu lihat.</p>
+      <PageHeader
+        title="Berkas"
+        description={`File Word, Excel, dan PowerPoint buatan Asisten AI${isKepala ? " dari semua pengguna" : " milik Bapak/Ibu"}. Tautan unduh berlaku 1 jam sejak diklik.`}
+        actions={
           <Link
             href="/chat"
-            className="mt-3 inline-flex min-h-11 items-center rounded-md bg-primary px-4 font-medium text-surface hover:bg-navy"
+            className="inline-flex min-h-11 items-center rounded-md bg-primary px-4 text-table font-medium text-surface transition-colors hover:bg-navy"
           >
-            Buka Asisten AI
+            Buat berkas baru
           </Link>
+        }
+      />
+
+      {rows.length === 0 ? (
+        <div data-tour="berkas-tabel" className="mt-4 rounded-lg border border-line bg-surface">
+          <EmptyState
+            icon={Files}
+            title="Belum ada berkas"
+            description="Minta Asisten AI membuat file Word, Excel, atau PowerPoint dari data yang boleh Bapak/Ibu lihat. Contoh: &quot;Buatkan Excel daftar penugasan&quot;."
+            action={{ label: "Buka Asisten AI", href: "/chat" }}
+          />
         </div>
       ) : (
-        <div className="mt-4 overflow-hidden panel rounded-md border border-line bg-surface">
+        <div data-tour="berkas-tabel" className="mt-4 overflow-hidden rounded-lg border border-line bg-surface">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[860px] border-collapse text-left text-table">
-              <thead className="bg-primary-soft font-semibold">
+            <table className="ledger min-w-[860px] ">
+              <thead>
                 <tr>
-                  <th scope="col" className="w-12 px-3 py-2 text-right">No</th>
-                  <th scope="col" className="px-3 py-2">Nama berkas</th>
-                  <th scope="col" className="px-3 py-2">Jenis</th>
-                  <th scope="col" className="px-3 py-2">Sumber data</th>
-                  <th scope="col" className="px-3 py-2 text-right">Isi</th>
-                  {isKepala ? <th scope="col" className="px-3 py-2">Dibuat oleh</th> : null}
-                  <th scope="col" className="px-3 py-2">Dibuat</th>
-                  <th scope="col" className="px-3 py-2">Aksi</th>
+                  <th scope="col" className="w-12 px-4 py-3.5 text-right">No</th>
+                  <th scope="col" className="px-4 py-3.5">Nama berkas</th>
+                  <th scope="col" className="px-4 py-3.5">Jenis</th>
+                  <th scope="col" className="px-4 py-3.5">Sumber data</th>
+                  <th scope="col" className="px-4 py-3.5 text-right">Isi</th>
+                  {isKepala ? <th scope="col" className="px-4 py-3.5">Dibuat oleh</th> : null}
+                  <th scope="col" className="px-4 py-3.5">Dibuat</th>
+                  <th scope="col" className="px-4 py-3.5">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
@@ -69,21 +78,21 @@ export default async function BerkasPage({
                   const Icon = jenis.icon;
                   return (
                     <tr key={item.id}>
-                      <td className="px-3 py-2 text-right text-muted tabular-nums">{paged.start + index}</td>
-                      <td className="px-3 py-2 break-all">{item.nama}</td>
-                      <td className="px-3 py-2">
+                      <td className="px-4 py-3.5 text-right text-muted tabular-nums">{paged.start + index}</td>
+                      <td className="px-4 py-3.5 break-all">{item.nama}</td>
+                      <td className="px-4 py-3.5">
                         <span className="inline-flex items-center gap-1.5">
                           <Icon aria-hidden className="size-4 text-primary" />
                           {jenis.label}
                         </span>
                       </td>
-                      <td className="px-3 py-2">{item.sumber}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">
+                      <td className="px-4 py-3.5">{item.sumber}</td>
+                      <td className="px-4 py-3.5 text-right tabular-nums">
                         {item.jenis === "pptx" ? `${item.slide ?? 0} slide` : `${item.baris ?? 0} baris`}
                       </td>
-                      {isKepala ? <td className="px-3 py-2">{item.dibuat_oleh}</td> : null}
-                      <td className="px-3 py-2 whitespace-nowrap">{formatTanggal(item.created_at)}</td>
-                      <td className="px-3 py-2">
+                      {isKepala ? <td className="px-4 py-3.5">{item.dibuat_oleh}</td> : null}
+                      <td className="px-4 py-3.5 whitespace-nowrap">{formatTanggal(item.created_at)}</td>
+                      <td className="px-4 py-3.5">
                         <a
                           href={`/api/berkas/${item.id}`}
                           className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-line px-3 font-medium text-primary hover:bg-primary-soft"
@@ -97,6 +106,7 @@ export default async function BerkasPage({
                 })}
               </tbody>
             </table>
+<StackLabels />
           </div>
           <Pagination paged={paged} path="/berkas" query={query} label="berkas" />
         </div>

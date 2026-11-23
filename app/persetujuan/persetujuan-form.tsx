@@ -37,12 +37,12 @@ export function PersetujuanForm({ approvalId }: { approvalId: string }) {
           name="catatan"
           maxLength={1000}
           rows={2}
-          className="mt-1 w-full panel rounded-md border border-line bg-surface px-3 py-2 text-table"
+          className="mt-1 w-full rounded-lg border border-line bg-surface px-3 py-2 text-table"
         />
       </label>
       {state.error ? <p role="alert" className="mt-2 text-table text-bad">{state.error}</p> : null}
       {state.success ? <p role="status" className="mt-2 text-table text-ok">{state.success}</p> : null}
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div data-tour="persetujuan-keputusan" className="mt-3 flex flex-wrap gap-2">
         <button
           ref={approveRef}
           type="submit"

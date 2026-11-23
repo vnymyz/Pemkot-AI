@@ -1444,3 +1444,72 @@ revoke execute on function ajukan_aktivasi_vendor(uuid, uuid) from public, anon,
 grant execute on function putuskan_dokumen_vendor(uuid, uuid, boolean, text) to service_role;
 grant execute on function kirim_verifikasi_vendor(uuid, uuid) to service_role;
 grant execute on function ajukan_aktivasi_vendor(uuid, uuid) to service_role;
+
+-- ---------------------------------------------------------------------------
+-- Dashboard numbers per role. Counted here so the page never calculates them.
+-- ---------------------------------------------------------------------------
+create or replace function ringkasan_dashboard(p_actor uuid)
+returns jsonb
+language plpgsql stable
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  a profiles%rowtype;
+  v_vendor_status text;
+  v_hasil jsonb;
+begin
+  select * into a from profiles where id = p_actor;
+  if not found then
+    raise exception 'akses_ditolak';
+  end if;
+
+  if a.role = 'vendor' then
+    select status into v_vendor_status from vendors where id = a.vendor_id;
+    return jsonb_build_object(
+      'role', a.role,
+      'vendor_status', v_vendor_status,
+      'dokumen_wajib', 3,
+      'dokumen_lengkap', (select count(*) from vendor_documents d
+                           where d.vendor_id = a.vendor_id
+                             and d.jenis in ('NIB', 'NPWP', 'Akta') and d.status_cek = 'lengkap'),
+      'penugasan_aktif', (select count(*) from project_assignments x
+                           where x.vendor_id = a.vendor_id and x.status in ('disetujui', 'berjalan')),
+      'penugasan_selesai', (select count(*) from project_assignments x
+                             where x.vendor_id = a.vendor_id and x.status = 'selesai'),
+      'berkas_saya', (select count(*) from generated_files f where f.dibuat_oleh = p_actor)
+    );
+  end if;
+
+  v_hasil := jsonb_build_object(
+    'role', a.role,
+    'proyek_tanpa_vendor', (select count(*) from projects pr
+                             where (a.role in ('admin_pengadaan', 'kepala_dinas') or pr.opd_id = a.opd_id)
+                               and pr.status in ('rencana', 'mencari_vendor', 'ditunda')
+                               and not exists (select 1 from project_assignments x
+                                                where x.project_id = pr.id
+                                                  and x.status in ('disetujui', 'berjalan', 'selesai'))),
+    'usulan_menunggu', (select count(*) from approvals ap
+                         where ap.status = 'pending'
+                           and (a.role = 'kepala_dinas' or ap.diusulkan_oleh = p_actor)),
+    'usulan_tertua', (select min(ap.created_at) from approvals ap
+                       where ap.status = 'pending'
+                         and (a.role = 'kepala_dinas' or ap.diusulkan_oleh = p_actor)),
+    'berkas_saya', (select count(*) from generated_files f
+                     where a.role = 'kepala_dinas' or f.dibuat_oleh = p_actor)
+  );
+
+  if a.role in ('admin_pengadaan', 'kepala_dinas') then
+    v_hasil := v_hasil || jsonb_build_object(
+      'vendor_verifikasi', (select count(*) from vendors where status = 'verifikasi'),
+      'vendor_aktif', (select count(*) from vendors where status = 'aktif'),
+      'sertifikat_hampir_habis', (select count(*) from vendor_certifications c
+                                    join vendors v on v.id = c.vendor_id
+                                   where v.status = 'aktif' and c.berlaku_sampai <= current_date + 60)
+    );
+  end if;
+  return v_hasil;
+end;
+$$;
+
+revoke execute on function ringkasan_dashboard(uuid) from public, anon, authenticated;
+grant execute on function ringkasan_dashboard(uuid) to service_role;
